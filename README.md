@@ -10,7 +10,7 @@ Autoría: Enrique Maya Cámara en colaboración con RIACES (Red Iberoamericana p
 
 | Página | Para quién | Qué hace |
 | --- | --- | --- |
-| `index.html` | Asistentes | Cuestionario en 6 pasos: consentimiento, perfil (A2-A17), autopercepción retrospectiva antes/ahora (B1-B18), prueba de conocimientos (C1-C30), valoración abierta opcional (D1-D3) y envío |
+| `index.html` | Asistentes | Cuestionario en 7 pasos: consentimiento, perfil (A2-A17), autopercepción retrospectiva antes/ahora (B1-B18), prueba de conocimientos (C1-C30), satisfacción con contenidos, instructores y logística (D1-D13), valoración abierta opcional (E1-E4) y envío |
 | `panel.html` | Equipo evaluador | Acceso con contraseña personal, análisis de resultados, filtros y exportación a CSV, Excel y PDF |
 
 ## Cómo funciona
@@ -61,9 +61,10 @@ GitHub Pages (index.html, panel.html)  ──fetch──▶  Google Apps Script 
 - Aciertos por sesión frente al criterio, distribución de puntuaciones y logro según la experiencia previa.
 - Autopercepción retrospectiva antes/ahora (t de Student para muestras relacionadas, p exacta, d_z) y calibración entre conocimiento y autopercepción.
 - Fiabilidad (KR-20, α de Cronbach) y análisis de ítems (dificultad, discriminación y «No lo sé»).
-- Valoración del diplomado: comentarios abiertos (lo que más gustó, lo que menos y propuestas), con buscador.
+- Satisfacción por componente (contenidos, instructores, logística y dinámicas, global): medias, porcentaje de satisfechos, α de Cronbach y distribución de respuestas por ítem.
+- Valoración del diplomado: comentarios abiertos (lo que más gustó, lo que menos, sugerencias de mejora e ideas para próximos diplomados), con buscador.
 - Filtros por país, perfil profesional y experiencia previa, que se aplican también a las exportaciones.
-- **Exportar:** datos en CSV (separador `;`, compatible con Excel en español), un Excel con las hojas Resumen, Autopercepción, Ítems, Comentarios, Datos y Diccionario, e informe en PDF desde el diálogo de impresión.
+- **Exportar:** datos en CSV (separador `;`, compatible con Excel en español), un Excel con las hojas Resumen, Autopercepción, Ítems, Satisfacción, Comentarios, Datos y Diccionario, e informe en PDF desde el diálogo de impresión.
 
 La contraseña se guarda solo durante la sesión del navegador y se borra al cerrar la pestaña o al pulsar «Cerrar sesión».
 

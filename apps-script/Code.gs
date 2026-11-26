@@ -89,7 +89,7 @@ function guardar_(r) {
   if (!CONFIG.ABIERTO) throw new Error('El cuestionario está cerrado.');
   if (!r.consentimiento) throw new Error('Falta el consentimiento.');
   const CLAVE = claveRespuestas_();
-  const A = r.A || {}, B = r.B || {}, C = r.C || {}, D = r.D || {};
+  const A = r.A || {}, B = r.B || {}, C = r.C || {}, D = r.D || {}, E = r.E || {};
   const antes = [], ahora = [];
   for (let i = 1; i <= 18; i++) {
     const b = B['B' + i] || {};
@@ -98,6 +98,12 @@ function guardar_(r) {
     antes.push(x); ahora.push(y);
   }
   for (let i = 1; i <= 30; i++) { if (!/^[A-E]$/.test(C['C' + i] || '')) throw new Error('Falta responder C' + i + '.'); }
+  const sat = [];
+  for (let i = 1; i <= 13; i++) {
+    const v = Number(D['D' + i]);
+    if (!(v >= 1 && v <= 5)) throw new Error('Falta responder D' + i + ' (satisfacción).');
+    sat.push(v);
+  }
 
   const sum = a => a.reduce((s, x) => s + x, 0);
   const ok = CLAVE.map((k, i) => (C['C' + (i + 1)] === k ? 1 : 0));
@@ -119,8 +125,10 @@ function guardar_(r) {
     ok.forEach(v => fila.push(v));
     fila.push(sum(ok), cm[0], cm[1], cm[2], logro[0], logro[1], logro[2], (logro[0] && logro[1] && logro[2]) ? 1 : 0, noLoSe,
               sum(antes) / 18, sum(ahora) / 18, mm(antes, 0), mm(antes, 1), mm(antes, 2), mm(ahora, 0), mm(ahora, 1), mm(ahora, 2),
-              String(r.orden || '').slice(0, 200),
-              texto_(D.D1, 1500), texto_(D.D2, 1500), texto_(D.D3, 1500));
+              String(r.orden || '').slice(0, 200));
+    sat.forEach(v => fila.push(v));
+    fila.push(sum(sat.slice(0, 4)) / 4, sum(sat.slice(4, 8)) / 4, sum(sat.slice(8, 12)) / 4, sat[12]);
+    fila.push(texto_(E.E1, 1500), texto_(E.E2, 1500), texto_(E.E3, 1500), texto_(E.E4, 1500));
     hoja.appendRow(fila);
     return { ok: true, id: id };
   } finally {
@@ -160,8 +168,10 @@ function cabeceras_() {
   for (let i = 1; i <= 30; i++) h.push('C' + i);
   for (let i = 1; i <= 30; i++) h.push('C' + i + '_ok');
   h.push('C_total','C_M1','C_M2','C_M3','logro_M1','logro_M2','logro_M3','logro_global','C_no_lo_se',
-         'B_antes_media','B_ahora_media','B_antes_M1','B_antes_M2','B_antes_M3','B_ahora_M1','B_ahora_M2','B_ahora_M3','orden_C',
-         'D1_mas_gusto','D2_menos_gusto','D3_ideas');
+         'B_antes_media','B_ahora_media','B_antes_M1','B_antes_M2','B_antes_M3','B_ahora_M1','B_ahora_M2','B_ahora_M3','orden_C');
+  for (let i = 1; i <= 13; i++) h.push('D' + i);
+  h.push('Sat_contenidos','Sat_instructores','Sat_logistica','Sat_global',
+         'E1_mas_gusto','E2_menos_gusto','E3_sugerencias','E4_ideas');
   return h;
 }
 function hoja_() {
@@ -173,9 +183,21 @@ function hoja_() {
     h.getRange(1, 1, 1, c.length).setValues([c]).setFontWeight('bold').setBackground('#000000').setFontColor('#FFFFFF');
     h.setFrozenRows(1);
   } else {
-    // Si la pestaña se creó con una versión anterior, añade las columnas nuevas al final
-    const c = cabeceras_(), n = h.getLastColumn();
-    if (n < c.length) h.getRange(1, n + 1, 1, c.length - n).setValues([c.slice(n)]).setFontWeight('bold').setBackground('#000000').setFontColor('#FFFFFF');
+    // Pestaña creada con una versión anterior del cuestionario
+    const c = cabeceras_(), n = Math.max(1, h.getLastColumn());
+    const actual = h.getRange(1, 1, 1, n).getValues()[0].map(String);
+    if (actual.join('|') !== c.join('|')) {
+      if (h.getLastRow() <= 1) {
+        // sin respuestas todavía: se reescriben las cabeceras
+        if (n > c.length) h.getRange(1, c.length + 1, 1, n - c.length).clearContent();
+        h.getRange(1, 1, 1, c.length).setValues([c]).setFontWeight('bold').setBackground('#000000').setFontColor('#FFFFFF');
+      } else if (c.slice(0, actual.length).join('|') === actual.join('|')) {
+        // con respuestas: solo se añaden las columnas nuevas al final
+        h.getRange(1, n + 1, 1, c.length - n).setValues([c.slice(n)]).setFontWeight('bold').setBackground('#000000').setFontColor('#FFFFFF');
+      } else {
+        throw new Error('La pestaña «' + CONFIG.HOJA + '» tiene columnas de otra versión y ya contiene respuestas. Cámbiale el nombre para conservarla y vuelve a ejecutar configurar.');
+      }
+    }
   }
   return h;
 }

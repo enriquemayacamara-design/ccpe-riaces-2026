@@ -6,7 +6,7 @@
 <title>Panel de evaluadores · CCPE-RIACES 2026</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/base.css?v=20261126c">
+<link rel="stylesheet" href="assets/base.css?v=20261126d">
 <style>
 main{padding:30px 0 40px}
 .bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0 18px}
@@ -74,7 +74,7 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <img src="assets/logo-riaces.png?v=20261126c" alt="RIACES · Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior">
+  <img src="assets/logo-riaces.png?v=20261126d" alt="RIACES · Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior">
   <div class="brandtxt"><b>Panel de evaluadores</b><span>Diplomado Internacional de Pares Académicos Evaluadores 2026</span></div>
   <div class="who" id="who"></div>
 </div></header>
@@ -82,13 +82,17 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 <main class="wrap" id="app"></main>
 <footer class="ft"><div class="wrap"><span>Enrique Maya Cámara en colaboración con RIACES</span><span>Intervalos de confianza del 95 % por el método de Wilson · p exacta de la t de Student.</span></div></footer>
 
-<script src="config.js?v=20261126c"></script>
-<script src="assets/meta.js?v=20261126c"></script>
+<script src="config.js?v=20261126d"></script>
+<script src="assets/meta.js?v=20261126d"></script>
 <script src="assets/vendor/xlsx.full.min.js"></script>
 <script>
 const API=(window.CCPE_CONFIG||{}).API_URL||'';
 const META=window.CCPE_META;
 const MODS=['Perspectiva iberoamericana','Actuación estratégica','Innovación y juicio evaluativo'];
+const SATG=[{c:'Contenidos',k:'Sat_contenidos',items:[['D1','Pertinencia de los contenidos'],['D2','Actualidad de los contenidos'],['D3','Lecturas y materiales'],['D4','Equilibrio teoría-práctica']]},
+ {c:'Instructores',k:'Sat_instructores',items:[['D5','Dominio de los temas'],['D6','Claridad de las exposiciones'],['D7','Fomento de la participación'],['D8','Retroalimentación']]},
+ {c:'Logística y dinámicas',k:'Sat_logistica',items:[['D9','Organización y comunicación'],['D10','Plataforma y sesiones sincrónicas'],['D11','Horario y duración'],['D12','Dinámicas de las sesiones']]},
+ {c:'Valoración global',k:'Sat_global',items:[['D13','Satisfacción global']]}];
 const SESS=['Comparación de sistemas y marcos','Indicadores, evidencias y juicio','Antes de la visita','Durante y después de la visita','IA, microcredenciales y trayectorias','Hallazgos, recomendaciones e informes'];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -185,6 +189,11 @@ function analizar(R){
   const totI=M.map(r=>r.reduce((s,x)=>s+x,0));
   A.items=META.map((k,j)=>{const col=M.map(r=>r[j]);const p=mean(col);const rit=pearson(col,totI.map((t,i)=>t-col[i]));const dk=R.filter(r=>r['C'+(j+1)]==='E').length/n;
     return{id:k.id,ses:k.ses,lvl:k.lvl,p,rit,dk,flag:(nn(p)&&(p<.2||p>.9))||(nn(rit)&&rit<.2)};});
+  const sv=(r,id)=>Number(r[id]);
+  A.satItems=SATG.flatMap(g=>g.items.map(([id,l])=>{const v=R.map(r=>sv(r,id)).filter(x=>x>=1&&x<=5);const c=[1,2,3,4,5].map(k=>v.filter(x=>x===k).length);return{id,l,g:g.c,n:v.length,m:mean(v),sd:sd(v),c,ps:v.length?(c[3]+c[4])/v.length:NaN};}));
+  A.satComp=SATG.map(g=>{const v=R.map(r=>num(r,g.k)).filter(x=>x>=1);const it=g.items.map(([id])=>id);const M=R.map(r=>it.map(id=>sv(r,id))).filter(row=>row.every(x=>x>=1));
+    const ind=R.map(r=>it.map(id=>sv(r,id))).filter(row=>row.every(x=>x>=1)).map(row=>mean(row));
+    return{c:g.c,n:v.length,m:mean(v),sd:sd(v),ps:ind.length?ind.filter(x=>x>=4).length/ind.length:NaN,alpha:it.length>1&&M.length>2?alpha(M):NaN};});
   A.R=R; return A;
 }
 
@@ -209,7 +218,13 @@ function pintar(){
   <div class="panel chart"><h3>Calibración</h3><p class="sub">Cada punto es un asistente: conocimiento real frente a competencia que se atribuye ahora. r = ${f2(A.r)}</p>${calib(A)}</div></div>
   <div class="panel tbl"><table><caption><b style="color:var(--text);font-weight:700">Tabla 2.</b> Competencia autopercibida retrospectiva: antes del diplomado frente a ahora, con la t de Student para muestras relacionadas (n = ${n}; gl = ${n-1}).</caption><thead><tr><th>Escala (1-5)</th><th>Antes M (DE)</th><th>Ahora M (DE)</th><th>t</th><th>p</th><th>d<sub>z</sub></th></tr></thead><tbody>
   ${tabla2(A).map(r=>`<tr><td>${r[0]}</td>${r.slice(1).map(x=>`<td class="num">${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section>`;
-  h+=`<section class="sec"><p class="eyebrow">Bloque D · Respuestas abiertas</p><h2>Valoración del diplomado</h2><div id="coment"></div></section>`;
+  if(A.satItems.some(x=>x.n)){
+  h+=`<section class="sec"><p class="eyebrow">Bloque D · Satisfacción</p><h2>Satisfacción con el diplomado</h2>
+  <div class="tiles kpis" style="margin-top:14px;grid-template-columns:repeat(4,1fr)">${A.satComp.map(s=>`<div class="tile"><div class="v num">${f1(s.m)}<span style="font-size:14px;color:var(--muted);font-weight:600"> / 5</span></div><div class="k">${s.c} · ${pc(s.ps)} satisfechos (media ≥ 4)</div></div>`).join('')}</div>
+  <div class="panel chart" style="margin-top:14px"><h3>Distribución de las respuestas por aspecto</h3><p class="sub">Porcentaje de respuestas en cada nivel; a la derecha, la media (1-5)</p>${satChart(A.satItems)}</div>
+  <div class="panel tbl"><table><caption><b style="color:var(--text);font-weight:700">Tabla 4.</b> Satisfacción por componente (escala 1-5; satisfechos: media del componente ≥ 4).</caption><thead><tr><th>Componente</th><th>n</th><th>M (DE)</th><th>Satisfechos</th><th>α de Cronbach</th></tr></thead><tbody>
+  ${A.satComp.map(s=>`<tr><td>${s.c}</td><td class="num">${s.n}</td><td class="num">${f2k(s.m)} (${f2k(s.sd)})</td><td class="num">${pc(s.ps)}</td><td class="num">${f2(s.alpha)}</td></tr>`).join('')}</tbody></table></div></section>`;}
+  h+=`<section class="sec"><p class="eyebrow">Bloque E · Respuestas abiertas</p><h2>Valoración del diplomado</h2><div id="coment"></div></section>`;
   h+=`<section class="sec"><p class="eyebrow">Validación del instrumento</p><h2>Fiabilidad y análisis de ítems</h2>
   <div class="tiles kpis" style="margin-top:14px;grid-template-columns:repeat(3,1fr)">
    <div class="tile"><div class="v num">${f2(A.kr20)}</div><div class="k">KR-20 de la prueba de conocimientos</div></div>
@@ -227,8 +242,8 @@ function pintar(){
 }
 
 /* ================= Comentarios (bloque D) ================= */
-const DQ=[['D1_mas_gusto','Lo que más gustó'],['D2_menos_gusto','Lo que menos gustó / mejoras'],['D3_ideas','Ideas para próximos diplomados']];
-let DSEL='D1_mas_gusto', DQRY='';
+const DQ=[['E1_mas_gusto','Lo que más gustó'],['E2_menos_gusto','Lo que menos gustó'],['E3_sugerencias','Sugerencias de mejora'],['E4_ideas','Ideas para próximos diplomados']];
+let DSEL='E1_mas_gusto', DQRY='';
 const limpio=v=>String(v==null?'':v).replace(/^'/,'').trim();
 function pintarComentarios(R){
   const cnt=k=>R.filter(r=>limpio(r[k])).length;
@@ -283,6 +298,17 @@ function dumb(A){
   rows.forEach((r,i)=>{const y=34+i*52;s+=`<text x="0" y="${y-2}" class="v">${r.l}</text><text x="0" y="${y+13}">${r.s}</text><line x1="${sx(r.a)}" y1="${y}" x2="${sx(r.b)}" y2="${y}" stroke="#63002F" stroke-width="3"/><circle class="hole" cx="${sx(r.a)}" cy="${y}" r="7" stroke-width="2"/><circle cx="${sx(r.b)}" cy="${y}" r="8" fill="#63002F"/><text x="${sx(Math.min(r.a,r.b))-12}" y="${y+4}" text-anchor="end">${f1(r.a)}</text><text x="${sx(Math.max(r.a,r.b))+13}" y="${y+4}" class="v">${f1(r.b)}</text><text x="${W}" y="${y+4}" text-anchor="end">dz ${f2k(r.dz)}</text>`;});
   return s+'</svg>';
 }
+function satChart(items){
+  const cols=['#b45309','#e0a872','#d9d2d5','#b07a93','#63002F'], lab=['Muy insatisfecho','Insatisfecho','Neutral','Satisfecho','Muy satisfecho'];
+  const W2=1000,X0=300,X1=W2-70,rh=26,top=34,sx=v=>X0+(X1-X0)*v;let y=top,s='';
+  let prev='';
+  items.forEach(it=>{if(it.g!==prev){y+=prev?14:0;s+=`<text x="0" y="${y+4}" class="v" style="fill:var(--accent);font-weight:700">${it.g}</text>`;y+=16;prev=it.g;}
+    s+=`<text x="0" y="${y+13}">${it.id} · ${esc(it.l)}</text>`;let acc=0;
+    it.c.forEach((k,i)=>{const w=it.n?k/it.n:0;if(w>0){s+=`<rect x="${sx(acc)}" y="${y}" width="${Math.max(0,sx(acc+w)-sx(acc))}" height="${rh-8}" fill="${cols[i]}"><title>${lab[i]}: ${k} (${pc(w)})</title></rect>`;if(w>=.08)s+=`<text x="${(sx(acc)+sx(acc+w))/2}" y="${y+13}" text-anchor="middle" style="fill:${i>=3||i===0?'#fff':'#1f1a1c'};font-size:10px">${Math.round(w*100)}</text>`;}acc+=w;});
+    s+=`<text x="${W2}" y="${y+13}" text-anchor="end" class="v">${f1(it.m)}</text>`;y+=rh;});
+  const leg=lab.map((l,i)=>`<rect x="${X0+i*130}" y="0" width="12" height="12" fill="${cols[i]}"/><text x="${X0+i*130+18}" y="10">${l}</text>`).join('');
+  return `<svg viewBox="0 0 ${W2} ${y+10}" role="img" aria-label="Distribución de la satisfacción por ítem">${leg}${s}</svg>`;
+}
 function calib(A){
   const w=W-40,h=180,px=v=>40+(w-10)*v/30,py=v=>14+h-h*(v-1)/4;let s=`<svg viewBox="0 0 ${W} 240" role="img" aria-label="Calibración">`;
   [1,2,3,4,5].forEach(v=>{s+=`<line class="grid" x1="40" y1="${py(v)}" x2="${W}" y2="${py(v)}"/><text x="32" y="${py(v)+4}" text-anchor="end">${v}</text>`;});
@@ -316,10 +342,14 @@ function exportXLSX(){
     ['Por ítem'],['Ítem','Antes M','Ahora M','Diferencia'],...[...Array(18)].map((_,i)=>{const a=R.map(r=>num(r,'B'+(i+1)+'_antes')),b=R.map(r=>num(r,'B'+(i+1)+'_ahora'));return['B'+(i+1),+mean(a).toFixed(2),+mean(b).toFixed(2),+(mean(b)-mean(a)).toFixed(2)];})],[34,10,10,10,10,8,6,9,8]);
   add('Ítems',[['Tabla 3. Análisis de ítems de la prueba de conocimientos'],['Ítem','Sesión','Nivel','p (dificultad)','r_it corregida','% No lo sé','Revisar'],
     ...A.items.map(it=>[it.id,it.ses,it.lvl,+it.p.toFixed(3),nn(it.rit)?+it.rit.toFixed(3):'',+(it.dk*100).toFixed(1),it.flag?'sí':''])],[8,8,14,14,14,12,9]);
-  add('Comentarios',[['Valoración del diplomado (respuestas abiertas, opcionales). Sin datos de perfil para proteger el anonimato; el cruce con el perfil está en la hoja Datos.'],['Lo que más gustó','Lo que menos gustó / mejoras','Ideas para próximos diplomados'],
-    ...R.filter(r=>DQ.some(([k])=>limpio(r[k]))).map(r=>[limpio(r.D1_mas_gusto),limpio(r.D2_menos_gusto),limpio(r.D3_ideas)])],[60,60,60]);
+  add('Satisfacción',[['Tabla 4. Satisfacción por componente (escala 1-5)'],['Componente','n','M','DE','% satisfechos (media ≥ 4)','α de Cronbach'],
+    ...A.satComp.map(s=>[s.c,s.n,+(+s.m).toFixed(2),nn(s.sd)?+s.sd.toFixed(2):'',nn(s.ps)?+(s.ps*100).toFixed(1):'',nn(s.alpha)?+s.alpha.toFixed(3):'']),[],
+    ['Por ítem'],['Ítem','Aspecto','Componente','n','M','DE','% satisfechos (4-5)','1 Muy insatisfecho','2 Insatisfecho','3 Neutral','4 Satisfecho','5 Muy satisfecho'],
+    ...A.satItems.map(i=>[i.id,i.l,i.g,i.n,nn(i.m)?+i.m.toFixed(2):'',nn(i.sd)?+i.sd.toFixed(2):'',nn(i.ps)?+(i.ps*100).toFixed(1):'',...i.c])],[8,32,22,6,7,7,14,10,10,10,10,10]);
+  add('Comentarios',[['Valoración del diplomado (respuestas abiertas, opcionales). Sin datos de perfil para proteger el anonimato; el cruce con el perfil está en la hoja Datos.'],['Lo que más gustó','Lo que menos gustó','Sugerencias de mejora','Ideas para próximos diplomados'],
+    ...R.filter(r=>DQ.some(([k])=>limpio(r[k]))).map(r=>DQ.map(([k])=>limpio(r[k])))],[50,50,50,50]);
   add('Datos',[D.cabeceras,...R.map(r=>D.cabeceras.map(h=>r[h]))]);
-  add('Diccionario',[['Columna','Descripción'],['marca_temporal','Fecha y hora del envío (UTC)'],['id_respuesta','Identificador aleatorio del cuestionario'],['duracion_seg','Segundos desde que se abrió hasta el envío'],['A2…A17','Perfil y participación (bloque A)'],['Bn_antes / Bn_ahora','Competencia autopercibida retrospectiva, 1-5 (bloque B)'],['C1…C30','Opción elegida (A-D; E = No lo sé)'],['Cn_ok','1 = acierto, 0 = error o No lo sé'],['C_total, C_M1…C_M3','Aciertos totales (0-30) y por módulo (0-10)'],['logro_M1…M3, logro_global',`1 = alcanza el criterio (≥ ${CRIT} de 10 por módulo; global: los tres)`],['C_no_lo_se','Número de respuestas «No lo sé»'],['B_antes_media, B_ahora_media, B_*_M1…M3','Medias de autopercepción (total y por módulo)'],['orden_C','Orden aleatorio en que se mostraron las preguntas'],['D1_mas_gusto, D2_menos_gusto, D3_ideas','Respuestas abiertas opcionales: lo que más gustó, lo que menos gustó o mejoraría, e ideas para próximos diplomados']],[38,70]);
+  add('Diccionario',[['Columna','Descripción'],['marca_temporal','Fecha y hora del envío (UTC)'],['id_respuesta','Identificador aleatorio del cuestionario'],['duracion_seg','Segundos desde que se abrió hasta el envío'],['A2…A17','Perfil y participación (bloque A)'],['Bn_antes / Bn_ahora','Competencia autopercibida retrospectiva, 1-5 (bloque B)'],['C1…C30','Opción elegida (A-D; E = No lo sé)'],['Cn_ok','1 = acierto, 0 = error o No lo sé'],['C_total, C_M1…C_M3','Aciertos totales (0-30) y por módulo (0-10)'],['logro_M1…M3, logro_global',`1 = alcanza el criterio (≥ ${CRIT} de 10 por módulo; global: los tres)`],['C_no_lo_se','Número de respuestas «No lo sé»'],['B_antes_media, B_ahora_media, B_*_M1…M3','Medias de autopercepción (total y por módulo)'],['orden_C','Orden aleatorio en que se mostraron las preguntas'],['D1…D13','Satisfacción 1-5 (D1-D4 contenidos, D5-D8 instructores, D9-D12 logística y dinámicas, D13 global)'],['Sat_contenidos, Sat_instructores, Sat_logistica, Sat_global','Media de cada componente de satisfacción'],['E1_mas_gusto, E2_menos_gusto, E3_sugerencias, E4_ideas','Respuestas abiertas opcionales: lo que más gustó, lo que menos, sugerencias de mejora e ideas para próximos diplomados']],[38,70]);
   XLSX.writeFile(wb,`ccpe-riaces-2026_resultados_${stamp()}.xlsx`);
 }
 function alertBox(m){const d=document.createElement('div');d.className='err';d.textContent=m;$('#body').prepend(d);setTimeout(()=>d.remove(),6000);}
