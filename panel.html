@@ -6,7 +6,7 @@
 <title>Panel de evaluadores · CCPE-RIACES 2026</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/base.css?v=20261126b">
+<link rel="stylesheet" href="assets/base.css?v=20261126c">
 <style>
 main{padding:30px 0 40px}
 .bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0 18px}
@@ -49,6 +49,15 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 .who b{color:var(--text);font-weight:600}
 .linkbtn{background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;font-size:13px;padding:0;text-decoration:underline}
 .printonly{display:none}
+.dtabs{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:14px 0 12px}
+.dtabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
+.dtabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.dtabs input{margin-left:auto;min-width:220px}
+.cmts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.cmt{padding:14px 16px;border-left:3px solid var(--accent)}
+.cmt p{white-space:pre-wrap;word-wrap:break-word}
+.cmt small{display:block;margin-top:8px;color:var(--muted);font-size:12px}
+@media (max-width:900px){.cmts{grid-template-columns:1fr}.dtabs input{margin-left:0;min-width:0;width:100%}}
 @media (max-width:900px){.charts{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.tools .exp{margin-left:0}}
 @media print{
   :root{--bg:#fff;--panel:#fff;--panel2:#fff}
@@ -65,7 +74,7 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <img src="assets/logo-riaces.png?v=20261126b" alt="RIACES · Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior">
+  <img src="assets/logo-riaces.png?v=20261126c" alt="RIACES · Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior">
   <div class="brandtxt"><b>Panel de evaluadores</b><span>Diplomado Internacional de Pares Académicos Evaluadores 2026</span></div>
   <div class="who" id="who"></div>
 </div></header>
@@ -73,8 +82,8 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 <main class="wrap" id="app"></main>
 <footer class="ft"><div class="wrap"><span>Enrique Maya Cámara en colaboración con RIACES</span><span>Intervalos de confianza del 95 % por el método de Wilson · p exacta de la t de Student.</span></div></footer>
 
-<script src="config.js?v=20261126b"></script>
-<script src="assets/meta.js?v=20261126b"></script>
+<script src="config.js?v=20261126c"></script>
+<script src="assets/meta.js?v=20261126c"></script>
 <script src="assets/vendor/xlsx.full.min.js"></script>
 <script>
 const API=(window.CCPE_CONFIG||{}).API_URL||'';
@@ -200,6 +209,7 @@ function pintar(){
   <div class="panel chart"><h3>Calibración</h3><p class="sub">Cada punto es un asistente: conocimiento real frente a competencia que se atribuye ahora. r = ${f2(A.r)}</p>${calib(A)}</div></div>
   <div class="panel tbl"><table><caption><b style="color:var(--text);font-weight:700">Tabla 2.</b> Competencia autopercibida retrospectiva: antes del diplomado frente a ahora, con la t de Student para muestras relacionadas (n = ${n}; gl = ${n-1}).</caption><thead><tr><th>Escala (1-5)</th><th>Antes M (DE)</th><th>Ahora M (DE)</th><th>t</th><th>p</th><th>d<sub>z</sub></th></tr></thead><tbody>
   ${tabla2(A).map(r=>`<tr><td>${r[0]}</td>${r.slice(1).map(x=>`<td class="num">${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section>`;
+  h+=`<section class="sec"><p class="eyebrow">Bloque D · Respuestas abiertas</p><h2>Valoración del diplomado</h2><div id="coment"></div></section>`;
   h+=`<section class="sec"><p class="eyebrow">Validación del instrumento</p><h2>Fiabilidad y análisis de ítems</h2>
   <div class="tiles kpis" style="margin-top:14px;grid-template-columns:repeat(3,1fr)">
    <div class="tile"><div class="v num">${f2(A.kr20)}</div><div class="k">KR-20 de la prueba de conocimientos</div></div>
@@ -213,6 +223,23 @@ function pintar(){
    <div class="panel chart"><h3>País</h3>${hbars(cnt('A2'))}</div><div class="panel chart"><h3>Perfil profesional</h3>${hbars(cnt('A7'))}</div>
    <div class="panel chart"><h3>Evaluaciones previas como par</h3>${hbars(cnt('A9'))}</div><div class="panel chart"><h3>Sesiones sincrónicas a las que asistió</h3>${hbars(cnt('A15').sort((a,b)=>Number(b[0])-Number(a[0])))}</div></div></section>`;
   $('#body').innerHTML=h;
+  pintarComentarios(R);
+}
+
+/* ================= Comentarios (bloque D) ================= */
+const DQ=[['D1_mas_gusto','Lo que más gustó'],['D2_menos_gusto','Lo que menos gustó / mejoras'],['D3_ideas','Ideas para próximos diplomados']];
+let DSEL='D1_mas_gusto', DQRY='';
+const limpio=v=>String(v==null?'':v).replace(/^'/,'').trim();
+function pintarComentarios(R){
+  const cnt=k=>R.filter(r=>limpio(r[k])).length;
+  const q=DQRY.toLowerCase();
+  const list=R.filter(r=>limpio(r[DSEL])&&(!q||limpio(r[DSEL]).toLowerCase().includes(q))).sort((a,b)=>String(b.marca_temporal).localeCompare(String(a.marca_temporal)));
+  $('#coment').innerHTML=`<p class="muted" style="margin-top:6px">Preguntas opcionales. Han respondido al menos una ${R.filter(r=>DQ.some(([k])=>limpio(r[k]))).length} de ${R.length} asistentes.</p>
+  <div class="dtabs noprint">${DQ.map(([k,l])=>`<button data-k="${k}" aria-pressed="${k===DSEL}">${l} · ${cnt(k)}</button>`).join('')}<input class="t" id="dq" type="search" placeholder="Buscar en los comentarios" value="${esc(DQRY)}" aria-label="Buscar en los comentarios"></div>
+  <h3 class="printonly" style="margin:10px 0">${DQ.find(d=>d[0]===DSEL)[1]}</h3>
+  ${list.length?`<div class="cmts">${list.map(r=>`<div class="panel cmt"><p>${esc(limpio(r[DSEL]))}</p></div>`).join('')}</div>`:`<div class="panel wait"><p class="muted">${q?'Ningún comentario contiene ese texto.':'Todavía no hay comentarios en esta pregunta.'}</p></div>`}`;
+  document.querySelectorAll('.dtabs button').forEach(b=>b.onclick=()=>{DSEL=b.dataset.k;pintarComentarios(R);});
+  const inp=$('#dq'); inp.oninput=()=>{DQRY=inp.value;const pos=inp.selectionStart;pintarComentarios(R);const n=$('#dq');n.focus();try{n.setSelectionRange(pos,pos);}catch(e){}};
 }
 function tabla1(A){const n=A.n;return[...A.mods.map((m,i)=>['Módulo '+(i+1)+' · '+MODS[i],`${f2k(mean(m.c))} (${f2k(sd(m.c))})`,m.k,pc(m.p),`${pc(m.ci[0])}-${pc(m.ci[1])}`]),
   ['Diplomado (los tres módulos)',`${f2k(mean(A.tot))} (${f2k(sd(A.tot))}) de 30`,A.glob,pc(A.glob/n),`${pc(A.globCI[0])}-${pc(A.globCI[1])}`]];}
@@ -269,7 +296,7 @@ const stamp=()=>new Date().toISOString().slice(0,10);
 function descargar(blob,nombre){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=nombre;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
 function exportCSV(){
   const R=filtradas(),H=D.cabeceras;
-  const cell=v=>{const s=v==null?'':String(v);return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
+  const cell=v=>{let s=v==null?'':String(v);if(typeof v==='string'&&/^[=+\-@]/.test(s))s="'"+s;return /[;"\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;};
   const txt='﻿'+[H.join(';'),...R.map(r=>H.map(h=>cell(typeof r[h]==='number'?String(r[h]).replace('.',','):r[h])).join(';'))].join('\r\n');
   descargar(new Blob([txt],{type:'text/csv;charset=utf-8'}),`ccpe-riaces-2026_datos_${stamp()}.csv`);
 }
@@ -289,8 +316,10 @@ function exportXLSX(){
     ['Por ítem'],['Ítem','Antes M','Ahora M','Diferencia'],...[...Array(18)].map((_,i)=>{const a=R.map(r=>num(r,'B'+(i+1)+'_antes')),b=R.map(r=>num(r,'B'+(i+1)+'_ahora'));return['B'+(i+1),+mean(a).toFixed(2),+mean(b).toFixed(2),+(mean(b)-mean(a)).toFixed(2)];})],[34,10,10,10,10,8,6,9,8]);
   add('Ítems',[['Tabla 3. Análisis de ítems de la prueba de conocimientos'],['Ítem','Sesión','Nivel','p (dificultad)','r_it corregida','% No lo sé','Revisar'],
     ...A.items.map(it=>[it.id,it.ses,it.lvl,+it.p.toFixed(3),nn(it.rit)?+it.rit.toFixed(3):'',+(it.dk*100).toFixed(1),it.flag?'sí':''])],[8,8,14,14,14,12,9]);
+  add('Comentarios',[['Valoración del diplomado (respuestas abiertas, opcionales). Sin datos de perfil para proteger el anonimato; el cruce con el perfil está en la hoja Datos.'],['Lo que más gustó','Lo que menos gustó / mejoras','Ideas para próximos diplomados'],
+    ...R.filter(r=>DQ.some(([k])=>limpio(r[k]))).map(r=>[limpio(r.D1_mas_gusto),limpio(r.D2_menos_gusto),limpio(r.D3_ideas)])],[60,60,60]);
   add('Datos',[D.cabeceras,...R.map(r=>D.cabeceras.map(h=>r[h]))]);
-  add('Diccionario',[['Columna','Descripción'],['marca_temporal','Fecha y hora del envío (UTC)'],['id_respuesta','Identificador aleatorio del cuestionario'],['duracion_seg','Segundos desde que se abrió hasta el envío'],['A2…A17','Perfil y participación (bloque A)'],['Bn_antes / Bn_ahora','Competencia autopercibida retrospectiva, 1-5 (bloque B)'],['C1…C30','Opción elegida (A-D; E = No lo sé)'],['Cn_ok','1 = acierto, 0 = error o No lo sé'],['C_total, C_M1…C_M3','Aciertos totales (0-30) y por módulo (0-10)'],['logro_M1…M3, logro_global',`1 = alcanza el criterio (≥ ${CRIT} de 10 por módulo; global: los tres)`],['C_no_lo_se','Número de respuestas «No lo sé»'],['B_antes_media, B_ahora_media, B_*_M1…M3','Medias de autopercepción (total y por módulo)'],['orden_C','Orden aleatorio en que se mostraron las preguntas']],[38,70]);
+  add('Diccionario',[['Columna','Descripción'],['marca_temporal','Fecha y hora del envío (UTC)'],['id_respuesta','Identificador aleatorio del cuestionario'],['duracion_seg','Segundos desde que se abrió hasta el envío'],['A2…A17','Perfil y participación (bloque A)'],['Bn_antes / Bn_ahora','Competencia autopercibida retrospectiva, 1-5 (bloque B)'],['C1…C30','Opción elegida (A-D; E = No lo sé)'],['Cn_ok','1 = acierto, 0 = error o No lo sé'],['C_total, C_M1…C_M3','Aciertos totales (0-30) y por módulo (0-10)'],['logro_M1…M3, logro_global',`1 = alcanza el criterio (≥ ${CRIT} de 10 por módulo; global: los tres)`],['C_no_lo_se','Número de respuestas «No lo sé»'],['B_antes_media, B_ahora_media, B_*_M1…M3','Medias de autopercepción (total y por módulo)'],['orden_C','Orden aleatorio en que se mostraron las preguntas'],['D1_mas_gusto, D2_menos_gusto, D3_ideas','Respuestas abiertas opcionales: lo que más gustó, lo que menos gustó o mejoraría, e ideas para próximos diplomados']],[38,70]);
   XLSX.writeFile(wb,`ccpe-riaces-2026_resultados_${stamp()}.xlsx`);
 }
 function alertBox(m){const d=document.createElement('div');d.className='err';d.textContent=m;$('#body').prepend(d);setTimeout(()=>d.remove(),6000);}

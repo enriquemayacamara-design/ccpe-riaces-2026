@@ -6,7 +6,7 @@
 <title>Cuestionario final · CCPE-RIACES 2026</title>
 <meta name="robots" content="noindex">
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/base.css?v=20261126b">
+<link rel="stylesheet" href="assets/base.css?v=20261126c">
 <style>
 .runner{display:grid;grid-template-columns:240px 1fr;gap:28px;align-items:start;padding-top:32px}
 .steps{position:sticky;top:90px;display:flex;flex-direction:column;gap:2px}
@@ -73,7 +73,8 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 .big{font-weight:900;font-size:44px;letter-spacing:.12em;color:var(--accent)}
 .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp 0.8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-textarea.t{width:100%;min-height:120px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--text);font:12px/1.4 monospace;padding:10px}
+textarea.t{width:100%;min-height:110px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--text);font:inherit;line-height:1.5;padding:10px 12px;resize:vertical}
+textarea.t:focus{border-color:var(--accent);outline:none}
 @media (max-width:900px){.runner{grid-template-columns:1fr}.steps{position:static;flex-direction:row;flex-wrap:wrap}.sum{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:560px){.codegrid{grid-template-columns:1fr}.lk,.lk-head{grid-template-columns:1fr repeat(5,34px)}.qa .q{grid-template-columns:1fr}.stage .panel{padding:18px}}
 
@@ -95,7 +96,7 @@ textarea.t{width:100%;min-height:120px;background:var(--panel2);border:1px solid
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <img src="assets/logo-riaces.png?v=20261126b" alt="RIACES · Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior">
+  <img src="assets/logo-riaces.png?v=20261126c" alt="RIACES · Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior">
   <div class="brandtxt"><b>Cuestionario final</b><span>Diplomado Internacional de Pares Académicos Evaluadores 2026</span></div>
   <span class="pill acc">Anónimo</span>
 </div></header>
@@ -106,8 +107,8 @@ textarea.t{width:100%;min-height:120px;background:var(--panel2);border:1px solid
 </main>
 <footer class="ft"><div class="wrap"><span>Diplomado Internacional en Formación y Actualización de Pares Académicos Evaluadores · RIACES 2026</span><span>Enrique Maya Cámara en colaboración con RIACES</span><span>Contacto del estudio: [correo]</span></div></footer>
 
-<script src="config.js?v=20261126b"></script>
-<script src="assets/items.js?v=20261126b"></script>
+<script src="config.js?v=20261126c"></script>
+<script src="assets/items.js?v=20261126c"></script>
 <script>
 const API = (window.CCPE_CONFIG||{}).API_URL || '';
 const ITEMS = window.CCPE_ITEMS;
@@ -131,7 +132,12 @@ const AQ = [
  {id:'A15',q:'Número de sesiones sincrónicas del diplomado a las que asistió',o:['0','1','2','3','4','5','6']},
  {id:'A16',q:'Proporción de lecturas base que leyó',o:['Ninguna','Menos de la mitad','La mitad o más','Todas']},
  {id:'A17',q:'Número de foros del diplomado en los que participó',o:['0','1','2','3']}];
-const STEPS = ['Presentación','Perfil','Autopercepción','Conocimientos','Revisión y envío'];
+const STEPS = ['Presentación','Perfil','Autopercepción','Conocimientos','Valoración','Revisión y envío'];
+const DQ = [
+ {id:'D1',q:'¿Qué es lo que más le ha gustado del diplomado?'},
+ {id:'D2',q:'¿Qué es lo que menos le ha gustado o qué mejoraría?'},
+ {id:'D3',q:'¿Qué ideas propone para próximos diplomados?'}];
+const DMAX = 1500;
 const NS = STEPS.length;
 const L = 'ABCDE';
 const $ = s => document.querySelector(s);
@@ -141,7 +147,7 @@ const DRAFT = 'ccpe-riaces-2026-postest';
 /* ---- Estado y borrador local ---- */
 function nuevoOrden(){ // aleatoriza el orden de las preguntas dentro de cada módulo
   const o=[];for(let m=0;m<3;m++){const g=[...Array(10)].map((_,i)=>m*10+i);for(let i=g.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[g[i],g[j]]=[g[j],g[i]];}o.push(...g);}return o;}
-const nuevo = () => ({step:0,max:0,consent:false,A:{},B:{},C:{},pos:0,orden:nuevoOrden(),t0:Date.now(),enviado:null});
+const nuevo = () => ({step:0,max:0,consent:false,A:{},B:{},C:{},D:{},pos:0,orden:nuevoOrden(),t0:Date.now(),enviado:null});
 let S = nuevo();
 let showMiss = false, sending = false, sendErr = '';
 function guardarBorrador(){try{localStorage.setItem(DRAFT,JSON.stringify(S));}catch(e){}}
@@ -151,7 +157,8 @@ function borrarBorrador(){try{localStorage.removeItem(DRAFT);}catch(e){}}
 const missA=()=>AQ.filter(q=>{const v=S.A[q.id];return v==null||v===''||(Array.isArray(v)&&!v.length);}).map(q=>q.id);
 const missB=()=>BITEMS.filter(b=>!(S.B[b.id]&&S.B[b.id].antes&&S.B[b.id].ahora)).map(b=>b.id);
 const nC=()=>Object.keys(S.C).length;
-function done(i){return [S.consent,!missA().length,!missB().length,nC()===30,!!S.enviado][i];}
+const nD=()=>DQ.filter(q=>String((S.D||{})[q.id]||'').trim()).length;
+function done(i){return [S.consent,!missA().length,!missB().length,nC()===30,S.max>4||nD()>0,!!S.enviado][i];}
 function progress(){const p=[S.consent?1:0,1-missA().length/AQ.length,1-missB().length/18,nC()/30];return Math.round(p.reduce((a,b)=>a+b,0)/4*100);}
 function goStep(i){S.step=i;S.max=Math.max(S.max,i);showMiss=false;guardarBorrador();render();window.scrollTo({top:0});}
 
@@ -210,6 +217,7 @@ function render(){
     return;}
 
   if(S.step===3){renderC(st,h);return;}
+  if(S.step===4){renderD(st,h);return;}
   renderEnvio(st,h);
 }
 
@@ -235,6 +243,14 @@ function renderC(st,h){
 }
 function responder(o){S.C['C'+(S.orden[S.pos]+1)]=o;guardarBorrador();render();}
 function avanzarC(){if(!S.C['C'+(S.orden[S.pos]+1)])return;if(S.pos<29){S.pos++;guardarBorrador();render();}else goStep(4);}
+function renderD(st,h){
+  h+=`<div class="panel">${head('Valoración del diplomado','Bloque D')}<p class="muted" style="max-width:68ch">Para terminar, nos gustaría conocer su opinión. Estas preguntas son <b style="font-weight:600;color:var(--text)">opcionales</b>: puede responder solo las que quiera.</p><div class="qa" style="margin-top:18px">`+
+  DQ.map(q=>{const v=(S.D||{})[q.id]||'';return `<div class="q"><span class="id">${q.id}</span><div><label for="d-${q.id}" style="display:block;margin-bottom:8px;font-weight:600">${q.q}</label><textarea class="t dta" id="d-${q.id}" data-d="${q.id}" maxlength="${DMAX}" rows="4" placeholder="Escriba aquí su respuesta (opcional)">${esc(v)}</textarea><p class="hint" id="c-${q.id}">${v.length}/${DMAX} caracteres</p></div></div>`;}).join('')+
+  `</div>${nav('Continuar')}</div>`;
+  st.innerHTML=h;
+  st.querySelectorAll('textarea[data-d]').forEach(ta=>ta.oninput=()=>{S.D=S.D||{};S.D[ta.dataset.d]=ta.value.slice(0,DMAX);document.getElementById('c-'+ta.dataset.d).textContent=ta.value.length+'/'+DMAX+' caracteres';guardarBorrador();});
+  bindNav();
+}
 document.addEventListener('keydown',e=>{
   if(S.step!==3||S.enviado||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
   const k=e.key.toUpperCase();
@@ -243,20 +259,21 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='ArrowLeft'&&S.pos>0){S.pos--;render();}
 });
 
-function payload(){return {consentimiento:S.consent,A:S.A,B:S.B,C:S.C,orden:S.orden.map(i=>'C'+(i+1)).join(','),duracion:(Date.now()-S.t0)/1000};}
+function payload(){return {consentimiento:S.consent,A:S.A,B:S.B,C:S.C,D:S.D||{},orden:S.orden.map(i=>'C'+(i+1)).join(','),duracion:(Date.now()-S.t0)/1000};}
 function renderEnvio(st,h){
   const pend=[!S.consent&&'el consentimiento',missA().length&&('perfil: '+missA().join(', ')),missB().length&&('bloque B: '+missB().join(', ')),nC()<30&&((30-nC())+' preguntas del bloque C')].filter(Boolean);
   const nk=Object.values(S.C).filter(v=>v==='E').length;
   h+=`<div class="panel">${head('Revisión y envío')}
-  <div class="tiles sum" style="margin-top:6px;grid-template-columns:repeat(3,1fr)">
+  <div class="tiles sum" style="margin-top:6px;grid-template-columns:repeat(4,1fr)">
     <div class="tile"><div class="v num">${AQ.length-missA().length}/${AQ.length}</div><div class="k">datos de perfil</div></div>
     <div class="tile"><div class="v num">${18-missB().length}/18</div><div class="k">ítems de autopercepción (antes y ahora)</div></div>
-    <div class="tile"><div class="v num">${nC()}/30</div><div class="k">preguntas de conocimientos (${nk} «No lo sé»)</div></div></div>
+    <div class="tile"><div class="v num">${nC()}/30</div><div class="k">preguntas de conocimientos (${nk} «No lo sé»)</div></div>
+    <div class="tile"><div class="v num">${nD()}/3</div><div class="k">preguntas de valoración (opcionales)</div></div></div>
   ${pend.length?`<div class="err">Antes de enviar falta completar: ${pend.join('; ')}.</div>`:`<p style="margin-top:18px;max-width:66ch">Puede volver atrás para revisar cualquier respuesta. Cuando pulse «Enviar respuestas», ya no podrá modificarlas.</p>`}
   ${sendErr?`<div class="err"><b style="font-weight:700">No se han podido enviar las respuestas.</b> ${esc(sendErr)} Compruebe su conexión y vuelva a intentarlo; sus respuestas siguen guardadas en este navegador.</div>`:''}
   <div class="navrow"><button class="btn ghost" id="prev">Atrás</button><button class="btn" id="send" ${pend.length||sending?'disabled':''}>${sending?'<span class="spinner"></span> Enviando…':'Enviar respuestas'}</button></div></div>`;
   st.innerHTML=h;
-  $('#prev').onclick=()=>{S.pos=29;goStep(3);};
+  $('#prev').onclick=()=>goStep(4);
   $('#send').onclick=enviar;
 }
 function enviar(){
