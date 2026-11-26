@@ -4,11 +4,14 @@
  * Diseño solo postest: una aplicación al final del diplomado.
  * Autor: Enrique Maya Cámara · La Clase de Kike (EMC)
  *
- * Este archivo NO contiene secretos. Se configuran en Apps Script, en
- * Configuración del proyecto → Propiedades del script:
- *   CLAVE_RESPUESTAS  30 letras con la clave de la prueba, en orden C1…C30 (p. ej. «BCAD…»)
- *   CLAVES_PANEL      evaluadores y contraseñas: «Nombre Apellido=contraseña; Otra Persona=otra-contraseña»
- *   URL_ENCUESTA      (opcional) dirección del cuestionario en GitHub Pages
+ * En el repositorio público este archivo NO contiene secretos. Hay dos formas de configurarlos,
+ * siempre dentro de Apps Script (que es privado):
+ *   a) Rellenar el bloque SECRETOS de abajo en el editor de Apps Script (nunca en GitHub), o
+ *   b) Crear en Configuración del proyecto → Propiedades del script:
+ *      CLAVE_RESPUESTAS  30 letras con la clave de la prueba, en orden C1…C30
+ *      CLAVES_PANEL      «Nombre=contraseña; Otra persona=otra-contraseña»
+ *      URL_ENCUESTA      (opcional) dirección del cuestionario en GitHub Pages
+ * Si existen, las propiedades del script tienen prioridad sobre el bloque SECRETOS.
  *
  * Rutas:
  *   GET  ?accion=estado            → { abierto, criterio }
@@ -21,23 +24,37 @@ const CONFIG = {
   ABIERTO: true,          // pon false para cerrar el cuestionario
   CRITERIO_MODULO: 7,     // aciertos mínimos (de 10) para alcanzar los objetivos de un módulo
 };
+// ===================== SECRETOS (rellenar solo en Apps Script, nunca en GitHub) =====================
+const SECRETOS = {
+  CLAVE_RESPUESTAS: '',   // 30 letras, C1…C30
+  CLAVES_PANEL: {         // 'Nombre': 'contraseña' (mínimo 6 caracteres)
+  },
+  URL_ENCUESTA: '',
+};
 const A_ITEMS = ['A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12','A13','A14','A15','A16','A17'];
 
 // ===================== SECRETOS =====================
 function props_() { return PropertiesService.getScriptProperties(); }
+function urlEncuesta_() { return props_().getProperty('URL_ENCUESTA') || SECRETOS.URL_ENCUESTA || ''; }
 function claveRespuestas_() {
-  const k = String(props_().getProperty('CLAVE_RESPUESTAS') || '').toUpperCase().replace(/[^A-E]/g, '');
-  if (k.length !== 30) throw new Error('Falta configurar CLAVE_RESPUESTAS (30 letras) en las propiedades del script.');
+  const k = String(props_().getProperty('CLAVE_RESPUESTAS') || SECRETOS.CLAVE_RESPUESTAS || '').toUpperCase().replace(/[^A-E]/g, '');
+  if (k.length !== 30) throw new Error('Falta configurar la clave de respuestas (30 letras).');
   return k.split('');
 }
-function evaluador_(clave) {
-  const lista = String(props_().getProperty('CLAVES_PANEL') || '');
-  const c = String(clave || '');
-  if (!c || c.length < 6) return null;
-  for (const par of lista.split(';')) {
-    const i = par.lastIndexOf('=');
-    if (i > 0 && par.slice(i + 1).trim() === c) return par.slice(0, i).trim();
+function evaluadores_() {
+  const lista = props_().getProperty('CLAVES_PANEL');
+  if (lista) {
+    const o = {};
+    lista.split(';').forEach(par => { const i = par.lastIndexOf('='); if (i > 0) o[par.slice(0, i).trim()] = par.slice(i + 1).trim(); });
+    return o;
   }
+  return SECRETOS.CLAVES_PANEL || {};
+}
+function evaluador_(clave) {
+  const c = String(clave || '');
+  if (c.length < 6) return null;
+  const ev = evaluadores_();
+  for (const nombre in ev) { if (String(ev[nombre]) === c) return nombre; }
   return null;
 }
 
@@ -46,7 +63,7 @@ function doGet(e) {
   const p = (e && e.parameter) || {};
   if (p.accion === 'estado') return json_({ ok: true, abierto: CONFIG.ABIERTO, criterio: CONFIG.CRITERIO_MODULO });
   // Cualquier otra visita: enlace al cuestionario publicado (mantiene válidos los enlaces antiguos)
-  const url = props_().getProperty('URL_ENCUESTA');
+  const url = urlEncuesta_();
   const html = url
     ? '<p style="font-family:sans-serif;padding:24px">El cuestionario está en <a target="_top" href="' + url + '">' + url + '</a></p>'
     : '<p style="font-family:sans-serif;padding:24px">Servicio de datos del cuestionario CCPE-RIACES 2026.</p>';
@@ -154,7 +171,7 @@ function hoja_() {
 function configurar() {
   hoja_();
   const k = claveRespuestas_();
-  const n = String(props_().getProperty('CLAVES_PANEL') || '').split(';').filter(s => s.indexOf('=') > 0).length;
+  const n = Object.keys(evaluadores_()).length;
   SpreadsheetApp.getActiveSpreadsheet().toast('Pestaña lista · clave de 30 ítems · ' + n + ' evaluador(es) con acceso al panel.', 'CCPE-RIACES', 8);
   return { items: k.length, evaluadores: n };
 }

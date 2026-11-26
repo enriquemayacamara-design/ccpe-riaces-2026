@@ -29,7 +29,9 @@ GitHub Pages (index.html, panel.html)  ──fetch──▶  Google Apps Script 
 
 1. Crea una hoja de Google (con la cuenta institucional) y abre **Extensiones → Apps Script**.
 2. Pega el contenido de `apps-script/Code.gs` en `Código.gs`.
-3. En **Configuración del proyecto (⚙) → Propiedades del script**, añade:
+3. Configura los datos privados de una de estas dos formas, siempre dentro de Apps Script y nunca en GitHub:
+   - rellena el bloque `SECRETOS` al principio de `Code.gs` en el editor de Apps Script, o
+   - en **Configuración del proyecto (⚙) → Propiedades del script**, añade las propiedades siguientes, que tienen prioridad sobre el bloque `SECRETOS`:
 
    | Propiedad | Valor |
    | --- | --- |
@@ -50,7 +52,7 @@ GitHub Pages (index.html, panel.html)  ──fetch──▶  Google Apps Script 
 ## Uso habitual
 
 - **Abrir o cerrar el cuestionario:** cambia `ABIERTO` en `Code.gs` y publica una nueva versión en *Implementar → Gestionar implementaciones → Editar → Nueva versión*. La URL no cambia.
-- **Dar o retirar acceso a un evaluador:** edita `CLAVES_PANEL` en las propiedades del script. No hace falta volver a implementar.
+- **Dar o retirar acceso a un evaluador:** edita `CLAVES_PANEL` en el bloque `SECRETOS` (y publica una nueva versión) o en las propiedades del script (sin volver a implementar).
 - **Cambiar el criterio de logro:** `CRITERIO_MODULO` en `Code.gs` (por defecto, 7 aciertos de 10 por módulo).
 
 ## Panel de evaluadores
