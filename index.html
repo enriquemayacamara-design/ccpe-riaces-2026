@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cuestionario final · CCPE-RIACES 2026</title>
 <meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/base.css">
 <style>
 .runner{display:grid;grid-template-columns:240px 1fr;gap:28px;align-items:start;padding-top:32px}
@@ -15,7 +15,7 @@
 .steps button .n{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none}
 .steps button.done .n{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .steps button[aria-current="step"]{background:var(--panel2);color:var(--text)}
-.steps button[aria-current="step"] .n{background:var(--accent);border-color:var(--accent);color:#000}
+.steps button[aria-current="step"] .n{background:var(--accent);border-color:var(--accent);color:#fff}
 .steps .side{margin-top:14px;padding:14px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
 .stage .panel{padding:26px}
 .progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:18px}
@@ -39,7 +39,7 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 .opts{display:flex;gap:6px;flex-wrap:wrap}
 .opt{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer}
 .opt:hover{border-color:var(--accent)}
-.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}
+.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 .hint{font-size:12px;color:var(--muted);margin-top:4px}
 .lk-head{display:grid;grid-template-columns:1fr repeat(5,46px);gap:6px;font-size:11px;color:var(--muted);text-align:center;align-items:end;padding:8px 0;position:sticky;top:64px;background:var(--panel);z-index:2}
 .lk-head span:first-child{text-align:left}
@@ -49,13 +49,13 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 .lk p b{color:var(--accent);font-weight:800;margin-right:8px}
 .lk button{height:38px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer;font-weight:700}
 .lk button:hover{border-color:var(--accent)}
-.lk button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#000}
+.lk button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 .qnav{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}
 .qnav .grp{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
 .qnav .grp small{font-size:11px;color:var(--muted);margin-right:4px;font-weight:600}
 .qdot{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:transparent;font-size:9px;font-weight:700;cursor:pointer;color:var(--muted);padding:0}
-.qdot.ans{background:rgba(0,184,148,.45);color:#fff;border-color:transparent}
-.qdot.cur{box-shadow:0 0 0 2px #fff}
+.qdot.ans{background:var(--accent-mid);color:#fff;border-color:transparent}
+.qdot.cur{box-shadow:0 0 0 2px var(--accent)}
 .qdot:disabled{cursor:default;opacity:.4}
 .stem{font-size:19px;font-weight:400;line-height:1.5;max-width:70ch}
 .stem b{color:var(--accent);font-weight:900;margin-right:10px}
@@ -64,14 +64,14 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 .mc button .L{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
 .mc button:hover{border-color:var(--accent)}
 .mc button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
-.mc button[aria-pressed="true"] .L{background:var(--accent);color:#000;border-color:var(--accent)}
+.mc button[aria-pressed="true"] .L{background:var(--accent);color:#fff;border-color:var(--accent)}
 .mc button.dk{color:var(--muted);font-style:italic}
 .kbd{font-size:12px;color:var(--muted)}
 .kbd kbd{font-family:inherit;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:11px}
 .err{margin-top:16px;padding:12px 16px;border-radius:8px;border-left:4px solid var(--red);background:var(--red-soft)}
 .sum{display:grid;grid-template-columns:repeat(4,1fr)}
 .big{font-weight:900;font-size:44px;letter-spacing:.12em;color:var(--accent)}
-.spinner{width:18px;height:18px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:sp 0.8s linear infinite}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp 0.8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 textarea.t{width:100%;min-height:120px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--text);font:12px/1.4 monospace;padding:10px}
 @media (max-width:900px){.runner{grid-template-columns:1fr}.steps{position:static;flex-direction:row;flex-wrap:wrap}.sum{grid-template-columns:repeat(2,1fr)}}
@@ -87,16 +87,16 @@ textarea.t{width:100%;min-height:120px;background:var(--panel2);border:1px solid
 .rt .row.now span{color:var(--text);font-weight:600}
 .rt button{height:34px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer;font-weight:700;font-size:13px}
 .rt button:hover{border-color:var(--accent)}
-.rt .row.before button[aria-pressed="true"]{background:#fff;border-color:#fff;color:#000}
-.rt .row.now button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#000}
+.rt .row.before button[aria-pressed="true"]{background:#6c5e65;border-color:#6c5e65;color:#fff}
+.rt .row.now button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 .scale{display:grid;grid-template-columns:150px repeat(5,40px);gap:5px;font-size:11px;color:var(--muted);text-align:center;justify-content:end;padding:8px 0;position:sticky;top:64px;background:var(--panel);z-index:2;border-bottom:1px solid var(--line)}
 @media (max-width:760px){.rt{grid-template-columns:1fr}.rt .row,.scale{grid-template-columns:110px repeat(5,1fr)}.scale{justify-content:stretch}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <img src="assets/logo.png" alt="EMC · La Clase de Kike">
-  <div class="brandtxt"><b>CCPE-RIACES 2026</b><span>Cuestionario final · Diplomado de Pares Académicos Evaluadores</span></div>
+  <img src="assets/logo-riaces.png" alt="RIACES · Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior">
+  <div class="brandtxt"><b>Cuestionario final</b><span>Diplomado Internacional de Pares Académicos Evaluadores 2026</span></div>
   <span class="pill acc">Anónimo</span>
 </div></header>
 
@@ -104,7 +104,7 @@ textarea.t{width:100%;min-height:120px;background:var(--panel2);border:1px solid
   <aside class="steps" id="steps" aria-label="Pasos del cuestionario"></aside>
   <div class="stage" id="stage" aria-live="polite"></div>
 </main>
-<footer class="ft"><div class="wrap"><span>Diplomado Internacional en Formación y Actualización de Pares Académicos Evaluadores · RIACES 2026</span><span>Contacto del estudio: [correo]</span></div></footer>
+<footer class="ft"><div class="wrap"><span>Diplomado Internacional en Formación y Actualización de Pares Académicos Evaluadores · RIACES 2026</span><span>Enrique Maya Cámara en colaboración con RIACES</span><span>Contacto del estudio: [correo]</span></div></footer>
 
 <script src="config.js"></script>
 <script src="assets/items.js"></script>

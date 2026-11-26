@@ -4,7 +4,7 @@ Cuestionario de Conocimientos y Competencia del Par Evaluador del **Diplomado In
 
 El cuestionario se aplica **una sola vez, al terminar el diplomado** (diseño solo postest), para comprobar si los asistentes han alcanzado los objetivos del curso. Es anónimo.
 
-Autor: Enrique Maya Cámara · [La Clase de Kike](https://laclasedekike.com)
+Autoría: Enrique Maya Cámara en colaboración con RIACES (Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior)
 
 ## Páginas
 
@@ -78,10 +78,10 @@ La contraseña se guarda solo durante la sesión del navegador y se borra al cer
 index.html              Cuestionario
 panel.html              Panel de evaluadores
 config.js               URL del servicio de datos
-assets/base.css         Estilos de la marca EMC
+assets/base.css         Estilos con la identidad de RIACES
 assets/items.js         Ítems del cuestionario (sin clave)
 assets/meta.js          Sesión y nivel cognitivo de cada ítem (sin clave)
-assets/logo.png         Logotipo EMC
+assets/logo-riaces.png  Logotipo de RIACES
 assets/vendor/          SheetJS 0.18.5 (licencia Apache 2.0) para exportar a Excel
 apps-script/Code.gs     Servicio de datos para Google Apps Script
 ```
