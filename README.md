@@ -72,7 +72,8 @@ La contraseña se guarda solo durante la sesión del navegador y se borra al cer
 
 - El cuestionario no recoge nombre, correo ni ningún identificador personal.
 - Los datos se guardan únicamente en la hoja de Google del responsable del estudio.
-- Antes de lanzarlo hay que completar en `index.html` los datos entre corchetes: [entidad], [correo] y [código] del comité de ética.
+- Contacto del estudio: secretariaejecutiva@riaces.org.
+- Antes de lanzarlo hay que completar en `index.html` los datos entre corchetes: [entidad] (responsable del tratamiento) y [código] del comité de ética.
 
 ## Estructura
 

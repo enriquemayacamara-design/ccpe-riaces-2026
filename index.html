@@ -105,7 +105,7 @@ textarea.t:focus{border-color:var(--accent);outline:none}
   <aside class="steps" id="steps" aria-label="Pasos del cuestionario"></aside>
   <div class="stage" id="stage" aria-live="polite"></div>
 </main>
-<footer class="ft"><div class="wrap"><span>Diplomado Internacional en Formación y Actualización de Pares Académicos Evaluadores · RIACES 2026</span><span>Enrique Maya Cámara en colaboración con RIACES</span><span>Contacto del estudio: [correo]</span></div></footer>
+<footer class="ft"><div class="wrap"><span>Diplomado Internacional en Formación y Actualización de Pares Académicos Evaluadores · RIACES 2026</span><span>Enrique Maya Cámara en colaboración con RIACES</span><span>Contacto del estudio: <a href="mailto:secretariaejecutiva@riaces.org" style="color:inherit">secretariaejecutiva@riaces.org</a></span></div></footer>
 
 <script src="config.js?v=20261126d"></script>
 <script src="assets/items.js?v=20261126d"></script>
@@ -207,7 +207,7 @@ function render(){
       <li>Su participación es voluntaria y no influye en su calificación ni en la obtención de la microcredencial.</li>
       <li>Puede abandonar el cuestionario en cualquier momento sin dar explicaciones.</li>
       <li>El cuestionario es anónimo: no se solicita su nombre, su correo electrónico ni ningún dato que le identifique. Los resultados se publicarán solo de forma agregada.</li>
-      <li>Los datos se usarán exclusivamente con fines de investigación y mejora del diplomado. Responsable del tratamiento: [entidad]. Contacto: [correo]. Aprobación del comité de ética: [código].</li></ul>
+      <li>Los datos se usarán exclusivamente con fines de investigación y mejora del diplomado. Responsable del tratamiento: [entidad]. Contacto: <a href="mailto:secretariaejecutiva@riaces.org" style="color:inherit">secretariaejecutiva@riaces.org</a>. Aprobación del comité de ética: [código].</li></ul>
     <label class="check" for="consent"><input type="checkbox" id="consent" ${S.consent?'checked':''}><span><b style="font-weight:600">He leído esta información y acepto participar.</b> <span class="muted">Obligatorio para continuar.</span></span></label>
     ${nav('Aceptar y continuar',S.consent)}</div>`;
     st.innerHTML=h;$('#consent').onchange=e=>{S.consent=e.target.checked;guardarBorrador();render();};bindNav();return;}
