@@ -6,7 +6,7 @@
 <title>Panel de evaluadores · CCPE-RIACES 2026</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/base.css?v=20261126d">
+<link rel="stylesheet" href="assets/base.css?v=20261126e">
 <style>
 main{padding:30px 0 40px}
 .bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0 18px}
@@ -49,6 +49,16 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 .who b{color:var(--text);font-weight:600}
 .linkbtn{background:none;border:none;color:var(--accent);cursor:pointer;font:inherit;font-size:13px;padding:0;text-decoration:underline}
 .printonly{display:none}
+#tip{position:fixed;z-index:50;display:none;pointer-events:none;background:#1f1a1c;color:#fff;font-size:12px;line-height:1.45;padding:7px 10px;border-radius:6px;max-width:320px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+#tip b{font-weight:700}
+[data-tip]{cursor:help}
+.chart svg rect[data-ses]{cursor:pointer}
+.chart svg rect[data-ses]:hover{fill-opacity:.85}
+.pngbtn{position:absolute;top:12px;right:12px;border:1px solid var(--line);background:#fff;border-radius:5px;font:600 11px var(--body);color:var(--accent);padding:4px 8px;cursor:pointer}
+.pngbtn:hover{border-color:var(--accent)}
+.chart h3{padding-right:52px}
+.qual{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);align-self:center;cursor:pointer}
+.qual input{accent-color:var(--accent);width:16px;height:16px}
 .dtabs{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:14px 0 12px}
 .dtabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted)}
 .dtabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -74,7 +84,7 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <img src="assets/logo-riaces.png?v=20261126d" alt="RIACES · Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior">
+  <img src="assets/logo-riaces.png?v=20261126e" alt="RIACES · Red Iberoamericana para el Aseguramiento de la Calidad en la Educación Superior">
   <div class="brandtxt"><b>Panel de evaluadores</b><span>Diplomado Internacional de Pares Académicos Evaluadores 2026</span></div>
   <div class="who" id="who"></div>
 </div></header>
@@ -82,8 +92,9 @@ input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
 <main class="wrap" id="app"></main>
 <footer class="ft"><div class="wrap"><span>Enrique Maya Cámara en colaboración con RIACES</span><span>Intervalos de confianza del 95 % por el método de Wilson · p exacta de la t de Student.</span></div></footer>
 
-<script src="config.js?v=20261126d"></script>
-<script src="assets/meta.js?v=20261126d"></script>
+<script src="config.js?v=20261126e"></script>
+<script src="assets/meta.js?v=20261126e"></script>
+<script src="assets/items.js?v=20261126e"></script>
 <script src="assets/vendor/xlsx.full.min.js"></script>
 <script>
 const API=(window.CCPE_CONFIG||{}).API_URL||'';
@@ -117,7 +128,7 @@ const fp=p=>!nn(p)?'—':(p<.001?'< ,001':'= '+p.toFixed(3).replace('0.',','));
 
 
 function wilson(k,n){if(!n)return[NaN,NaN];const z=1.96,p=k/n,d=1+z*z/n,c=(p+z*z/(2*n))/d,h=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n))/d;return[Math.max(0,c-h),Math.min(1,c+h)];}
-const pc=x=>nn(x)?Math.round(x*100)+' %':'—';
+const pc=x=>nn(x)?Math.round(x*100)+'\u00a0%':'—';
 const num=(r,k)=>Number(r[k]);
 const okv=r=>META.map((_,i)=>Number(r['C'+(i+1)+'_ok'])||0);
 const bv=(r,k)=>[...Array(18)].map((_,i)=>Number(r['B'+(i+1)+'_'+k])||0);
@@ -159,15 +170,16 @@ function marco(){
   <h1 style="margin-top:8px">¿Han alcanzado los asistentes los objetivos del diplomado?</h1>
   <p class="muted" style="margin-top:10px;max-width:72ch">Un asistente alcanza los objetivos de un módulo si acierta al menos <b class="num" style="color:var(--accent)">${CRIT}</b> de sus 10 preguntas, y los del diplomado si lo consigue en los tres módulos.</p>
   <div class="bar"><span class="muted" id="stamp"></span><div class="grow">${D.hoja?`<a class="btn ghost" href="${esc(D.hoja)}" target="_blank" rel="noopener" style="text-decoration:none">Abrir la hoja de cálculo</a>`:''}<button class="btn ghost" id="rl">Actualizar</button></div></div>
-  <div class="panel tools"><b class="noprint" style="font-weight:700;font-size:13px;align-self:center;margin-right:4px">Filtrar</b>${sel('A2','País')}${sel('A7','Perfil profesional')}${sel('A9','Evaluaciones previas')}
+  <div class="panel tools"><b class="noprint" style="font-weight:700;font-size:13px;align-self:center;margin-right:4px">Filtrar</b>${sel('A2','País')}${sel('A7','Perfil profesional')}${sel('A9','Evaluaciones previas')}<label class="qual noprint" for="exq"><input type="checkbox" id="exq" ${EXQ?'checked':''}> Excluir sospechosos (<span id="nsos">0</span>)</label>
    <div class="exp"><button class="btn ghost" id="x-csv">Datos (CSV)</button><button class="btn ghost" id="x-xlsx">Datos y tablas (Excel)</button><button class="btn" id="x-pdf">Informe (PDF)</button></div></div>
   <p class="printonly" id="pfilt" style="margin-top:12px"></p>
   <div class="tiles kpis" id="kpis" style="margin-top:14px"></div><div id="body"></div>`;
   ['A2','A7','A9'].forEach(k=>$('#f-'+k).onchange=e=>{F[k]=e.target.value;pintar();});
+  $('#exq').onchange=e=>{EXQ=e.target.checked;pintar();};
   $('#rl').onclick=recargar;
   $('#x-csv').onclick=exportCSV; $('#x-xlsx').onclick=exportXLSX; $('#x-pdf').onclick=()=>{try{window.print();}catch(e){}};
 }
-const filtradas=()=>ALL.filter(r=>Object.keys(F).every(k=>!F[k]||String(r[k])===F[k]));
+const filtradas=()=>ALL.filter(r=>Object.keys(F).every(k=>!F[k]||String(r[k])===F[k])&&(!EXQ||!sospechas(r).length));
 const filtroTxt=()=>{const t=[['A2','País'],['A7','Perfil'],['A9','Evaluaciones previas']].filter(([k])=>F[k]).map(([k,l])=>`${l}: ${F[k]}`);return t.length?t.join(' · '):'Sin filtros (todos los asistentes)';};
 
 /* ================= Análisis ================= */
@@ -203,16 +215,19 @@ function pintar(){
   $('#stamp').textContent='Actualizado: '+new Date().toLocaleString('es-ES')+' · '+ALL.length+' cuestionarios en total';
   $('#pfilt').textContent='Filtros: '+filtroTxt()+' · n = '+n;
   ['x-csv','x-xlsx','x-pdf'].forEach(id=>$('#'+id).disabled=!n);
+  $('#nsos').textContent=sosp().length;
   if(!n){$('#kpis').innerHTML='';$('#body').innerHTML=`<div class="panel wait"><span class="pill acc">Sin datos</span><p>${ALL.length?'Ningún cuestionario cumple los filtros elegidos.':'Todavía no hay respuestas. El panel se irá llenando a medida que los asistentes respondan.'}</p></div>`;return;}
   $('#kpis').innerHTML=[[n,'cuestionarios'+(n<ALL.length?' (filtrados)':'')],[pc(A.glob/n),`alcanzan los objetivos del diplomado (IC 95 %: ${pc(A.globCI[0])}-${pc(A.globCI[1])})`],[f1(mean(A.tot))+' / 30','aciertos medios'],[pc(A.nk),'respuestas «No lo sé»'],[nn(A.dur)?Math.round(A.dur/60)+' min':'—','duración mediana']]
     .map(([v,k])=>`<div class="tile"><div class="v num">${v}</div><div class="k">${k}</div></div>`).join('');
-  let h=`<section class="sec"><p class="eyebrow">Logro de objetivos</p><h2>Qué parte de los asistentes alcanza cada objetivo</h2>
+  let h=seguimiento()+`<section class="sec"><p class="eyebrow">Logro de objetivos</p><h2>Qué parte de los asistentes alcanza cada objetivo</h2>
   <div class="charts"><div class="panel chart"><h3>Logro por módulo</h3><p class="sub">Porcentaje de asistentes con al menos ${CRIT} de 10 aciertos, con su IC del 95 %</p>${logroChart(A)}</div>
-  <div class="panel chart"><h3>Aciertos por sesión</h3><p class="sub">Porcentaje medio de aciertos en las 5 preguntas de cada sesión; la línea naranja discontinua marca el ${CRIT*10} %</p>${sesChart(A.ses)}</div></div>
+  <div class="panel chart"><h3>Aciertos por sesión</h3><p class="sub">Porcentaje medio de aciertos en las 5 preguntas de cada sesión; la línea naranja discontinua marca el ${CRIT*10} %. Pulsa una barra para ver sus preguntas</p>${sesChart(A.ses)}</div></div>
+  <div class="panel" id="drill" style="margin-top:14px;padding:16px 18px">${detalleSesion(R,SESSEL)}</div>
   <div class="panel tbl"><table><caption><b style="color:var(--text);font-weight:700">Tabla 1.</b> Aciertos y logro de objetivos por módulo (n = ${n}; criterio: ≥ ${CRIT} de 10).</caption><thead><tr><th>Módulo</th><th>Aciertos M (DE)</th><th>Alcanzan el criterio</th><th>%</th><th>IC 95 %</th></tr></thead><tbody>
   ${tabla1(A).map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td><td class="num">${r[4]}</td></tr>`).join('')}</tbody></table></div>
   <div class="charts"><div class="panel chart"><h3>Distribución de la puntuación total</h3><p class="sub">Número de asistentes por tramo de aciertos (0-30)</p>${hist(A.tot)}</div>
   <div class="panel chart"><h3>Logro según experiencia previa</h3><p class="sub">Porcentaje que alcanza los objetivos del diplomado según sus evaluaciones previas como par (A9)</p>${grupos(A.grupos)}</div></div></section>`;
+  h+=relaciones(A);
   h+=`<section class="sec"><p class="eyebrow">Autopercepción retrospectiva</p><h2>Cómo valoran su competencia antes y después</h2>
   <div class="charts"><div class="panel chart"><h3>Antes y ahora, por módulo</h3><p class="sub">Media de la escala 1-5: antes del diplomado (círculo hueco) y ahora (granate)</p>${dumb(A)}</div>
   <div class="panel chart"><h3>Calibración</h3><p class="sub">Cada punto es un asistente: conocimiento real frente a competencia que se atribuye ahora. r = ${f2(A.r)}</p>${calib(A)}</div></div>
@@ -225,6 +240,11 @@ function pintar(){
   <div class="panel tbl"><table><caption><b style="color:var(--text);font-weight:700">Tabla 4.</b> Satisfacción por componente (escala 1-5; satisfechos: media del componente ≥ 4).</caption><thead><tr><th>Componente</th><th>n</th><th>M (DE)</th><th>Satisfechos</th><th>α de Cronbach</th></tr></thead><tbody>
   ${A.satComp.map(s=>`<tr><td>${s.c}</td><td class="num">${s.n}</td><td class="num">${f2k(s.m)} (${f2k(s.sd)})</td><td class="num">${pc(s.ps)}</td><td class="num">${f2(s.alpha)}</td></tr>`).join('')}</tbody></table></div></section>`;}
   h+=`<section class="sec"><p class="eyebrow">Bloque E · Respuestas abiertas</p><h2>Valoración del diplomado</h2><div id="coment"></div></section>`;
+  h+=`<section class="sec"><p class="eyebrow">Comparación</p><h2>Comparar dos grupos</h2><div id="cmp"></div></section>`;
+  const SO=sosp();
+  h+=`<section class="sec"><p class="eyebrow">Calidad de los datos</p><h2>Cuestionarios sospechosos</h2>
+  <p class="muted" style="margin-top:6px;max-width:80ch">Se marcan los cuestionarios completados en menos de 10 minutos, con la misma respuesta en toda la satisfacción o en toda la autopercepción, con «No lo sé» en 25 o más preguntas, o con la misma opción en todas las preguntas. ${EXQ?'<b style="color:var(--accent)">Ahora están excluidos del análisis.</b>':'Ahora están incluidos en el análisis; puedes excluirlos con el interruptor de la barra de filtros.'}</p>
+  ${SO.length?`<div class="panel tbl"><table><caption><b style="color:var(--text);font-weight:700">${SO.length} de ${ALL.length}</b> cuestionarios con algún indicio.</caption><thead><tr><th>Fecha</th><th>Duración</th><th class="l">Motivos</th><th>Identificador</th></tr></thead><tbody>${SO.map(r=>`<tr><td>${String(r.marca_temporal||'').slice(0,10).split('-').reverse().join('/')}</td><td class="num">${Math.round(num(r,'duracion_seg')/60)} min</td><td class="l">${sospechas(r).join('; ')}</td><td class="num" style="font-size:11px">${esc(String(r.id_respuesta||'').slice(0,8))}</td></tr>`).join('')}</tbody></table></div>`:`<div class="panel wait"><p class="muted">No se ha detectado ningún cuestionario sospechoso.</p></div>`}</section>`;
   h+=`<section class="sec"><p class="eyebrow">Validación del instrumento</p><h2>Fiabilidad y análisis de ítems</h2>
   <div class="tiles kpis" style="margin-top:14px;grid-template-columns:repeat(3,1fr)">
    <div class="tile"><div class="v num">${f2(A.kr20)}</div><div class="k">KR-20 de la prueba de conocimientos</div></div>
@@ -237,8 +257,12 @@ function pintar(){
   h+=`<section class="sec"><p class="eyebrow">Bloque A</p><h2>Perfil de la muestra y participación</h2><div class="charts">
    <div class="panel chart"><h3>País</h3>${hbars(cnt('A2'))}</div><div class="panel chart"><h3>Perfil profesional</h3>${hbars(cnt('A7'))}</div>
    <div class="panel chart"><h3>Evaluaciones previas como par</h3>${hbars(cnt('A9'))}</div><div class="panel chart"><h3>Sesiones sincrónicas a las que asistió</h3>${hbars(cnt('A15').sort((a,b)=>Number(b[0])-Number(a[0])))}</div></div></section>`;
+  h+=`<section class="sec"><p class="eyebrow">Para el artículo</p><h2>Borrador del apartado de resultados</h2><div id="borr"></div></section>`;
   $('#body').innerHTML=h;
-  pintarComentarios(R);
+  pintarComentarios(R); pintarComparar(R); pintarBorrador(A);
+  document.querySelectorAll('rect[data-ses]').forEach(b=>b.onclick=()=>{SESSEL=+b.dataset.ses;$('#drill').innerHTML=detalleSesion(R,SESSEL);$('#drill').scrollIntoView({block:'nearest',behavior:'smooth'});});
+  const ins=$('#ins'); if(ins) ins.onchange=()=>{inscritos.set(ins.value);pintar();};
+  botonesPNG();
 }
 
 /* ================= Comentarios (bloque D) ================= */
@@ -267,35 +291,35 @@ function logroChart(A){
   const rows=[...A.mods.map((m,i)=>({l:'Módulo '+(i+1),s:MODS[i],p:m.p,ci:m.ci})),{l:'Diplomado',s:'los tres módulos',p:A.glob/A.n,ci:A.globCI,t:1}];
   const X0=178,X1=W-50,sx=v=>X0+(X1-X0)*v;let s=`<svg viewBox="0 0 ${W} 250" role="img" aria-label="Porcentaje de logro por módulo">`;
   [0,.25,.5,.75,1].forEach(v=>{s+=`<line class="grid" x1="${sx(v)}" y1="14" x2="${sx(v)}" y2="222"/><text x="${sx(v)}" y="240" text-anchor="middle">${v*100} %</text>`;});
-  rows.forEach((r,i)=>{const y=34+i*52;s+=`<text x="0" y="${y-2}" class="v">${r.l}</text><text x="0" y="${y+13}">${r.s}</text><rect x="${X0}" y="${y-9}" width="${Math.max(0,sx(r.p)-X0)}" height="18" fill="#63002F" fill-opacity="${r.t?1:.75}"/>`+
+  rows.forEach((r,i)=>{const y=34+i*52;s+=`<text x="0" y="${y-2}" class="v">${r.l}</text><text x="0" y="${y+13}">${r.s}</text><rect x="${X0}" y="${y-9}" width="${Math.max(0,sx(r.p)-X0)}" height="18" fill="#63002F" fill-opacity="${r.t?1:.75}" data-tip="<b>${r.l}</b><br>${pc(r.p)} alcanzan el criterio<br>IC 95 %: ${pc(r.ci[0])}-${pc(r.ci[1])}"/>`+
     (nn(r.ci[0])?`<g class="ink" stroke-width="1.5"><line x1="${sx(r.ci[0])}" y1="${y}" x2="${sx(r.ci[1])}" y2="${y}"/><line x1="${sx(r.ci[0])}" y1="${y-6}" x2="${sx(r.ci[0])}" y2="${y+6}"/><line x1="${sx(r.ci[1])}" y1="${y-6}" x2="${sx(r.ci[1])}" y2="${y+6}"/></g>`:'')+
     `<text x="${W}" y="${y+4}" text-anchor="end" class="v">${pc(r.p)}</text>`;});
   return s+'</svg>';
 }
 function sesChart(ses){
-  const H=170,Y0=190,sy=v=>Y0-H*v;let s=`<svg viewBox="0 0 ${W} 250" role="img" aria-label="Porcentaje de aciertos por sesión">`;
+  const H=160,Y0=196,sy=v=>Y0-H*v;let s=`<svg viewBox="0 0 ${W} 250" role="img" aria-label="Porcentaje de aciertos por sesión">`;
   [0,.25,.5,.75,1].forEach(v=>{s+=`<line class="grid" x1="40" y1="${sy(v)}" x2="${W}" y2="${sy(v)}"/><text x="32" y="${sy(v)+4}" text-anchor="end">${v*100}</text>`;});
-  ses.forEach((v,i)=>{const x=60+i*76;const ok=v>=CRIT/10;s+=`<rect x="${x}" y="${sy(v)}" width="44" height="${H*v}" fill="#63002F" fill-opacity="${ok?1:.4}"/><text x="${x+22}" y="${sy(v)-6}" text-anchor="middle" class="v">${Math.round(v*100)}</text><text x="${x+22}" y="${Y0+16}" text-anchor="middle" class="v">S${i+1}</text><text x="${x+22}" y="${Y0+30}" text-anchor="middle">M${Math.ceil((i+1)/2)}</text>`;});
-  return s+`<line x1="40" y1="${sy(CRIT/10)}" x2="${W}" y2="${sy(CRIT/10)}" stroke="#b45309" stroke-width="2" stroke-dasharray="6 4"/><text x="${W}" y="${sy(CRIT/10)-6}" text-anchor="end" class="v">criterio ${CRIT*10} %</text></svg>`;
+  ses.forEach((v,i)=>{const x=60+i*76;const ok=v>=CRIT/10;s+=`<rect x="${x}" y="${sy(v)}" width="44" height="${H*v}" fill="#63002F" fill-opacity="${ok?1:.4}" data-ses="${i}" data-tip="<b>Sesión ${i+1}</b>: ${SESS[i]}<br>${Math.round(v*100)} % de aciertos (${ok?'supera':'no alcanza'} el criterio)<br>Pulsa para ver sus preguntas"/><text x="${x+22}" y="${sy(v)-6}" text-anchor="middle" class="v">${Math.round(v*100)}</text><text x="${x+22}" y="${Y0+16}" text-anchor="middle" class="v">S${i+1}</text><text x="${x+22}" y="${Y0+30}" text-anchor="middle">M${Math.ceil((i+1)/2)}</text>`;});
+  return s+`<line x1="40" y1="${sy(CRIT/10)}" x2="${W}" y2="${sy(CRIT/10)}" stroke="#b45309" stroke-width="2" stroke-dasharray="6 4"/><line x1="${W-118}" y1="8" x2="${W-96}" y2="8" stroke="#b45309" stroke-width="2" stroke-dasharray="6 4"/><text x="${W}" y="12" text-anchor="end" class="v" style="fill:#b45309">criterio ${CRIT*10} %</text></svg>`;
 }
 function hist(a){
   const bins=[...Array(10)].map((_,i)=>i*3);const c=bins.map(b=>a.filter(v=>v>=b&&(b===27?v<=30:v<b+3)).length),mx=Math.max(1,...c);const H=180,Y0=200;
   let s=`<svg viewBox="0 0 ${W} 250" role="img" aria-label="Histograma de puntuaciones">`;const tick=Math.max(1,Math.ceil(mx/4));
   for(let v=0;v<=mx;v+=tick){const y=Y0-H*v/mx;s+=`<line class="grid" x1="40" y1="${y}" x2="${W}" y2="${y}"/><text x="32" y="${y+4}" text-anchor="end">${v}</text>`;}
-  bins.forEach((b,i)=>{const x=50+i*47,hh=H*c[i]/mx;s+=`<rect x="${x}" y="${Y0-hh}" width="38" height="${hh}" fill="#63002F"/><text x="${x+19}" y="${Y0+16}" text-anchor="middle">${b}-${b===27?30:b+2}</text>`;});
+  bins.forEach((b,i)=>{const x=50+i*47,hh=H*c[i]/mx;s+=`<rect x="${x}" y="${Y0-hh}" width="38" height="${hh}" fill="#63002F" data-tip="${b}-${b===27?30:b+2} aciertos: ${c[i]} asistente${c[i]===1?'':'s'}"/><text x="${x+19}" y="${Y0+16}" text-anchor="middle">${b}-${b===27?30:b+2}</text>`;});
   return s+`<line class="ink" x1="40" y1="${Y0}" x2="${W}" y2="${Y0}"/></svg>`;
 }
 function grupos(G){
   let s=`<svg viewBox="0 0 ${W} 230" role="img" aria-label="Logro según experiencia">`;
   [0,.25,.5,.75,1].forEach(v=>{const y=190-160*v;s+=`<line class="grid" x1="40" y1="${y}" x2="${W}" y2="${y}"/><text x="32" y="${y+4}" text-anchor="end">${v*100}</text>`;});
-  G.forEach((g,i)=>{const x=80+i*110,hh=nn(g.p)?160*g.p:0;s+=`<rect x="${x}" y="${190-hh}" width="64" height="${hh}" fill="#63002F" fill-opacity="${1-i*.18}"/><text x="${x+32}" y="${190-hh-8}" text-anchor="middle" class="v">${g.n?pc(g.p):'—'}</text><text x="${x+32}" y="208" text-anchor="middle" class="v">${g.g}</text><text x="${x+32}" y="224" text-anchor="middle">n = ${g.n}</text>`;});
+  G.forEach((g,i)=>{const x=80+i*110,hh=nn(g.p)?160*g.p:0;s+=`<rect x="${x}" y="${190-hh}" width="64" height="${hh}" fill="#63002F" fill-opacity="${1-i*.18}" data-tip="<b>${g.g} evaluaciones previas</b><br>${g.k} de ${g.n} alcanzan los objetivos (${pc(g.p)})"/><text x="${x+32}" y="${190-hh-8}" text-anchor="middle" class="v">${g.n?pc(g.p):'—'}</text><text x="${x+32}" y="208" text-anchor="middle" class="v">${g.g}</text><text x="${x+32}" y="224" text-anchor="middle">n = ${g.n}</text>`;});
   return s+'</svg>';
 }
 function dumb(A){
   const rows=[...A.bm.map((m,i)=>({l:'Módulo '+(i+1),s:MODS[i],a:mean(m.a),b:mean(m.b),dz:A.tM[i].dz})),{l:'Total',s:'18 ítems',a:mean(A.bt.a),b:mean(A.bt.b),dz:A.tT.dz}];
   const X0=150,X1=W-60,sx=v=>X0+(X1-X0)*(v-1)/4;let s=`<svg viewBox="0 0 ${W} 250" role="img" aria-label="Autopercepción antes y ahora">`;
   [1,2,3,4,5].forEach(v=>{s+=`<line class="grid" x1="${sx(v)}" y1="14" x2="${sx(v)}" y2="222"/><text x="${sx(v)}" y="240" text-anchor="middle">${v}</text>`;});
-  rows.forEach((r,i)=>{const y=34+i*52;s+=`<text x="0" y="${y-2}" class="v">${r.l}</text><text x="0" y="${y+13}">${r.s}</text><line x1="${sx(r.a)}" y1="${y}" x2="${sx(r.b)}" y2="${y}" stroke="#63002F" stroke-width="3"/><circle class="hole" cx="${sx(r.a)}" cy="${y}" r="7" stroke-width="2"/><circle cx="${sx(r.b)}" cy="${y}" r="8" fill="#63002F"/><text x="${sx(Math.min(r.a,r.b))-12}" y="${y+4}" text-anchor="end">${f1(r.a)}</text><text x="${sx(Math.max(r.a,r.b))+13}" y="${y+4}" class="v">${f1(r.b)}</text><text x="${W}" y="${y+4}" text-anchor="end">dz ${f2k(r.dz)}</text>`;});
+  rows.forEach((r,i)=>{const y=34+i*52;s+=`<text x="0" y="${y-2}" class="v">${r.l}</text><text x="0" y="${y+13}">${r.s}</text><line x1="${sx(r.a)}" y1="${y}" x2="${sx(r.b)}" y2="${y}" stroke="#63002F" stroke-width="3"/><circle class="hole" cx="${sx(r.a)}" cy="${y}" r="7" stroke-width="2" data-tip="<b>${r.l}</b> · antes: ${f2k(r.a)}"/><circle cx="${sx(r.b)}" cy="${y}" r="8" fill="#63002F" data-tip="<b>${r.l}</b> · ahora: ${f2k(r.b)}<br>Cambio: +${f2k(r.b-r.a)} · d<sub>z</sub> = ${f2k(r.dz)}"/><text x="${sx(Math.min(r.a,r.b))-12}" y="${y+4}" text-anchor="end">${f1(r.a)}</text><text x="${sx(Math.max(r.a,r.b))+13}" y="${y+4}" class="v">${f1(r.b)}</text><text x="${W}" y="${y+4}" text-anchor="end">dz ${f2k(r.dz)}</text>`;});
   return s+'</svg>';
 }
 function satChart(items){
@@ -304,7 +328,7 @@ function satChart(items){
   let prev='';
   items.forEach(it=>{if(it.g!==prev){y+=prev?14:0;s+=`<text x="0" y="${y+4}" class="v" style="fill:var(--accent);font-weight:700">${it.g}</text>`;y+=16;prev=it.g;}
     s+=`<text x="0" y="${y+13}">${it.id} · ${esc(it.l)}</text>`;let acc=0;
-    it.c.forEach((k,i)=>{const w=it.n?k/it.n:0;if(w>0){s+=`<rect x="${sx(acc)}" y="${y}" width="${Math.max(0,sx(acc+w)-sx(acc))}" height="${rh-8}" fill="${cols[i]}"><title>${lab[i]}: ${k} (${pc(w)})</title></rect>`;if(w>=.08)s+=`<text x="${(sx(acc)+sx(acc+w))/2}" y="${y+13}" text-anchor="middle" style="fill:${i>=3||i===0?'#fff':'#1f1a1c'};font-size:10px">${Math.round(w*100)}</text>`;}acc+=w;});
+    it.c.forEach((k,i)=>{const w=it.n?k/it.n:0;if(w>0){s+=`<rect x="${sx(acc)}" y="${y}" width="${Math.max(0,sx(acc+w)-sx(acc))}" height="${rh-8}" fill="${cols[i]}" data-tip="<b>${it.id} · ${esc(it.l)}</b><br>${lab[i]}: ${k} (${pc(w)})"></rect>`;if(w>=.08)s+=`<text x="${(sx(acc)+sx(acc+w))/2}" y="${y+13}" text-anchor="middle" style="fill:${i>=3||i===0?'#fff':'#1f1a1c'};font-size:10px">${Math.round(w*100)}</text>`;}acc+=w;});
     s+=`<text x="${W2}" y="${y+13}" text-anchor="end" class="v">${f1(it.m)}</text>`;y+=rh;});
   const leg=lab.map((l,i)=>`<rect x="${X0+i*130}" y="0" width="12" height="12" fill="${cols[i]}"/><text x="${X0+i*130+18}" y="10">${l}</text>`).join('');
   return `<svg viewBox="0 0 ${W2} ${y+10}" role="img" aria-label="Distribución de la satisfacción por ítem">${leg}${s}</svg>`;
@@ -313,7 +337,7 @@ function calib(A){
   const w=W-40,h=180,px=v=>40+(w-10)*v/30,py=v=>14+h-h*(v-1)/4;let s=`<svg viewBox="0 0 ${W} 240" role="img" aria-label="Calibración">`;
   [1,2,3,4,5].forEach(v=>{s+=`<line class="grid" x1="40" y1="${py(v)}" x2="${W}" y2="${py(v)}"/><text x="32" y="${py(v)+4}" text-anchor="end">${v}</text>`;});
   [0,10,20,30].forEach(v=>s+=`<text x="${px(v)}" y="${14+h+18}" text-anchor="middle">${v}</text>`);
-  A.tot.forEach((x,i)=>{const ok=num(A.R[i],'logro_global')===1;s+=ok?`<circle cx="${px(x)}" cy="${py(A.bt.b[i])}" r="4" fill="#63002F" fill-opacity=".85"/>`:`<circle class="hole" cx="${px(x)}" cy="${py(A.bt.b[i])}" r="3.5" stroke-width="1.2"/>`;});
+  A.tot.forEach((x,i)=>{const ok=num(A.R[i],'logro_global')===1;const tip=`data-tip="${x} aciertos · autopercepción ${f2k(A.bt.b[i])}<br>${ok?'Alcanza':'No alcanza'} los objetivos"`;s+=ok?`<circle cx="${px(x)}" cy="${py(A.bt.b[i])}" r="4" fill="#63002F" fill-opacity=".85" ${tip}/>`:`<circle class="hole" cx="${px(x)}" cy="${py(A.bt.b[i])}" r="3.5" stroke-width="1.2" ${tip}/>`;});
   return s+`<text x="${W/2}" y="234" text-anchor="middle">Aciertos (0-30) · eje vertical: autopercepción «ahora» (1-5) · granate: alcanza los objetivos</text></svg>`;
 }
 
@@ -330,7 +354,7 @@ function exportXLSX(){
   if(typeof XLSX==='undefined'){alertBox('No se ha podido cargar la librería de Excel. Comprueba la conexión y vuelve a intentarlo.');return;}
   const R=filtradas(),A=analizar(R),wb=XLSX.utils.book_new(),n=A.n;
   const add=(name,aoa,cols)=>{const ws=XLSX.utils.aoa_to_sheet(aoa);if(cols)ws['!cols']=cols.map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,name);};
-  add('Resumen',[['CCPE-RIACES 2026 · Logro de objetivos del diplomado'],['Exportado',new Date().toLocaleString('es-ES')],['Exportado por',D.evaluador],['Filtros',filtroTxt()],['Criterio',`≥ ${CRIT} de 10 aciertos por módulo; diplomado: los tres módulos`],[],
+  add('Resumen',[['CCPE-RIACES 2026 · Logro de objetivos del diplomado'],['Exportado',new Date().toLocaleString('es-ES')],['Exportado por',D.evaluador],['Filtros',filtroTxt()],['Cuestionarios sospechosos',EXQ?`${sosp().length} excluidos del análisis`:`${sosp().length} detectados, incluidos en el análisis`],['Criterio',`≥ ${CRIT} de 10 aciertos por módulo; diplomado: los tres módulos`],[],
     ['Indicador','Valor'],['Cuestionarios',n],['Alcanzan los objetivos del diplomado (%)',+(A.glob/n*100).toFixed(1)],['IC 95 % inferior (%)',+(A.globCI[0]*100).toFixed(1)],['IC 95 % superior (%)',+(A.globCI[1]*100).toFixed(1)],['Aciertos medios (0-30)',+mean(A.tot).toFixed(2)],['Respuestas «No lo sé» (%)',+(A.nk*100).toFixed(1)],['KR-20',+A.kr20.toFixed(3)],['α autopercepción antes',+A.aA.toFixed(3)],['α autopercepción ahora',+A.aB.toFixed(3)],['r conocimiento-autopercepción ahora',+A.r.toFixed(3)],[],
     ['Tabla 1. Logro por módulo'],['Módulo','Aciertos M','Aciertos DE','Alcanzan el criterio','%','IC 95 % inf.','IC 95 % sup.'],
     ...A.mods.map((m,i)=>['Módulo '+(i+1)+' · '+MODS[i],+mean(m.c).toFixed(2),+sd(m.c).toFixed(2),m.k,+(m.p*100).toFixed(1),+(m.ci[0]*100).toFixed(1),+(m.ci[1]*100).toFixed(1)]),
@@ -348,11 +372,208 @@ function exportXLSX(){
     ...A.satItems.map(i=>[i.id,i.l,i.g,i.n,nn(i.m)?+i.m.toFixed(2):'',nn(i.sd)?+i.sd.toFixed(2):'',nn(i.ps)?+(i.ps*100).toFixed(1):'',...i.c])],[8,32,22,6,7,7,14,10,10,10,10,10]);
   add('Comentarios',[['Valoración del diplomado (respuestas abiertas, opcionales). Sin datos de perfil para proteger el anonimato; el cruce con el perfil está en la hoja Datos.'],['Lo que más gustó','Lo que menos gustó','Sugerencias de mejora','Ideas para próximos diplomados'],
     ...R.filter(r=>DQ.some(([k])=>limpio(r[k]))).map(r=>DQ.map(([k])=>limpio(r[k])))],[50,50,50,50]);
+  relaciones(A);
+  add('Relaciones',[['Tabla 5. Correlaciones de Pearson con la puntuación en la prueba (0-30)'],['Variable','n','r','p'],...A.rel.cor.map(c=>[c.l,c.n,nn(c.r)?+c.r.toFixed(3):'',nn(c.p)?+c.p.toFixed(4):'']),[],
+    ['Logro según sesiones asistidas (A15)'],['Sesiones','n','Alcanzan','%','Aciertos medios'],...A.rel.grp.map(g=>[g.g,g.n,g.k,g.n?+(g.p*100).toFixed(1):'',nn(g.m)?+g.m.toFixed(2):''])],[52,6,8,10,14]);
+  add('Opciones',[['Distribución de las respuestas de cada ítem de conocimientos (n por opción)'],['Ítem','Sesión','Nivel','A','B','C','D','No lo sé','Correcta','% acierto'],
+    ...META.map((k,j)=>{const id='C'+(j+1);const c=[...'ABCDE'].map(l=>R.filter(r=>r[id]===l).length);const okL=[...'ABCDE'].find(l=>R.some(r=>r[id]===l&&Number(r[id+'_ok'])===1))||'';return[k.id,k.ses,k.lvl,...c,okL,n?+(R.filter(r=>Number(r[id+'_ok'])===1).length/n*100).toFixed(1):''];})],[7,7,13,6,6,6,6,9,9,10]);
+  add('Calidad',[['Cuestionarios con indicios de respuesta poco atenta'+(EXQ?' (excluidos del análisis)':' (incluidos en el análisis)')],['Fecha','Duración (min)','Motivos','Identificador'],...sosp().map(r=>[String(r.marca_temporal||'').slice(0,10),Math.round(num(r,'duracion_seg')/60),sospechas(r).join('; '),String(r.id_respuesta||'')])],[12,14,70,38]);
   add('Datos',[D.cabeceras,...R.map(r=>D.cabeceras.map(h=>r[h]))]);
   add('Diccionario',[['Columna','Descripción'],['marca_temporal','Fecha y hora del envío (UTC)'],['id_respuesta','Identificador aleatorio del cuestionario'],['duracion_seg','Segundos desde que se abrió hasta el envío'],['A2…A17','Perfil y participación (bloque A)'],['Bn_antes / Bn_ahora','Competencia autopercibida retrospectiva, 1-5 (bloque B)'],['C1…C30','Opción elegida (A-D; E = No lo sé)'],['Cn_ok','1 = acierto, 0 = error o No lo sé'],['C_total, C_M1…C_M3','Aciertos totales (0-30) y por módulo (0-10)'],['logro_M1…M3, logro_global',`1 = alcanza el criterio (≥ ${CRIT} de 10 por módulo; global: los tres)`],['C_no_lo_se','Número de respuestas «No lo sé»'],['B_antes_media, B_ahora_media, B_*_M1…M3','Medias de autopercepción (total y por módulo)'],['orden_C','Orden aleatorio en que se mostraron las preguntas'],['D1…D13','Satisfacción 1-5 (D1-D4 contenidos, D5-D8 instructores, D9-D12 logística y dinámicas, D13 global)'],['Sat_contenidos, Sat_instructores, Sat_logistica, Sat_global','Media de cada componente de satisfacción'],['E1_mas_gusto, E2_menos_gusto, E3_sugerencias, E4_ideas','Respuestas abiertas opcionales: lo que más gustó, lo que menos, sugerencias de mejora e ideas para próximos diplomados']],[38,70]);
   XLSX.writeFile(wb,`ccpe-riaces-2026_resultados_${stamp()}.xlsx`);
 }
 function alertBox(m){const d=document.createElement('div');d.className='err';d.textContent=m;$('#body').prepend(d);setTimeout(()=>d.remove(),6000);}
+
+/* ================= Mejoras: estado ================= */
+let EXQ=false, SESSEL=null, CMP={v:'A2',a:'',b:''};
+const IKEY='ccpe-inscritos';
+const inscritos={get(){try{return Number(localStorage.getItem(IKEY))||0}catch(e){return 0}},set(v){try{localStorage.setItem(IKEY,String(v||''))}catch(e){}}};
+const ITEMS=window.CCPE_ITEMS||[];
+const erf=x=>{const s=Math.sign(x);x=Math.abs(x);const t=1/(1+0.3275911*x);return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x));};
+const phi=z=>0.5*(1+erf(z/Math.SQRT2));
+const pR=(r,n)=>{if(!nn(r)||n<4||Math.abs(r)>=1)return NaN;const t=r*Math.sqrt((n-2)/(1-r*r));return pT(t,n-2);};
+function welch(a,b){const n1=a.length,n2=b.length;if(n1<2||n2<2)return{t:NaN,df:NaN,p:NaN,d:NaN};const v1=vr(a)/n1,v2=vr(b)/n2;const t=(mean(a)-mean(b))/Math.sqrt(v1+v2);const df=(v1+v2)**2/(v1*v1/(n1-1)+v2*v2/(n2-1));const sp=Math.sqrt(((n1-1)*vr(a)+(n2-1)*vr(b))/(n1+n2-2));return{t,df,p:pT(t,df),d:(mean(a)-mean(b))/sp};}
+function zprop(k1,n1,k2,n2){if(!n1||!n2)return NaN;const p=(k1+k2)/(n1+n2);const se=Math.sqrt(p*(1-p)*(1/n1+1/n2));if(!se)return NaN;const z=(k1/n1-k2/n2)/se;return 2*(1-phi(Math.abs(z)));}
+const ord16={'Ninguna':0,'Menos de la mitad':1,'La mitad o más':2,'Todas':3};
+
+/* ================= Calidad de los datos ================= */
+function sospechas(r){
+  const m=[], d=num(r,'duracion_seg');
+  if(d>0&&d<600)m.push('menos de 10 minutos');
+  const D=[...Array(13)].map((_,i)=>num(r,'D'+(i+1))).filter(x=>x>=1);
+  if(D.length===13&&new Set(D).size===1)m.push('misma respuesta en toda la satisfacción');
+  const a=bv(r,'antes'),b=bv(r,'ahora');
+  if(new Set(a).size===1&&new Set(b).size===1)m.push('misma respuesta en toda la autopercepción');
+  if(num(r,'C_no_lo_se')>=25)m.push('«No lo sé» en 25 o más preguntas');
+  const C=[...Array(30)].map((_,i)=>r['C'+(i+1)]);
+  if(new Set(C).size===1&&C[0]!=='E')m.push('misma opción en todas las preguntas');
+  return m;
+}
+const sosp=()=>ALL.filter(r=>sospechas(r).length);
+
+/* ================= Información emergente ================= */
+(function(){
+  const tip=document.createElement('div');tip.id='tip';tip.setAttribute('role','tooltip');document.body.appendChild(tip);
+  const show=(el,x,y)=>{tip.innerHTML=el.getAttribute('data-tip');tip.style.display='block';const w=tip.offsetWidth,h=tip.offsetHeight;
+    tip.style.left=Math.min(window.innerWidth-w-8,Math.max(8,x+14))+'px';tip.style.top=Math.max(8,y-h-12)+'px';};
+  document.addEventListener('mouseover',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el)show(el,e.clientX,e.clientY);});
+  document.addEventListener('mousemove',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el)show(el,e.clientX,e.clientY);else tip.style.display='none';});
+  document.addEventListener('touchstart',e=>{const el=e.target.closest&&e.target.closest('[data-tip]');if(el){const t=e.touches[0];show(el,t.clientX,t.clientY);}else tip.style.display='none';},{passive:true});
+  window.addEventListener('scroll',()=>{tip.style.display='none';},{passive:true});
+})();
+const tp=s=>esc(s).replace(/"/g,'&quot;');
+
+/* ================= Seguimiento de la recogida ================= */
+function seguimiento(){
+  const dias={};ALL.forEach(r=>{const d=String(r.marca_temporal||'').slice(0,10);if(d)dias[d]=(dias[d]||0)+1;});
+  const ks=Object.keys(dias).sort();
+  const ins=inscritos.get(), tasa=ins?ALL.length/ins:NaN;
+  let chart='<p class="muted">Sin respuestas todavía.</p>';
+  if(ks.length){
+    const W2=1000,H=150,Y0=170,mx=Math.max(1,...ks.map(k=>dias[k])),tot=ALL.length,bw=Math.min(40,(W2-80)/ks.length-6);
+    const sx=i=>60+i*((W2-80)/ks.length);let acc=0,pts=[];
+    let s=`<svg viewBox="0 0 ${W2} 210" role="img" aria-label="Respuestas por día">`;
+    [0,.5,1].forEach(v=>{const y=Y0-H*v;s+=`<line class="grid" x1="50" y1="${y}" x2="${W2}" y2="${y}"/><text x="42" y="${y+4}" text-anchor="end">${Math.round(mx*v)}</text>`;});
+    ks.forEach((k,i)=>{const v=dias[k];acc+=v;const x=sx(i),h=H*v/mx;pts.push([x+bw/2,Y0-H*acc/tot]);
+      s+=`<rect x="${x}" y="${Y0-h}" width="${bw}" height="${h}" fill="#63002F" fill-opacity=".8" data-tip="<b>${k.split('-').reverse().join('/')}</b><br>${v} respuesta${v>1?'s':''} · ${acc} acumuladas"/>`;
+      if(ks.length<=16||i%Math.ceil(ks.length/12)===0)s+=`<text x="${x+bw/2}" y="${Y0+16}" text-anchor="middle">${k.slice(8,10)}/${k.slice(5,7)}</text>`;});
+    s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#b45309" stroke-width="2"/>`;
+    s+=`<text x="${W2}" y="14" text-anchor="end">Barras: respuestas del día · línea naranja: acumulado (escala relativa)</text>`;
+    chart=s+'</svg>';
+  }
+  return `<section class="sec"><p class="eyebrow">Seguimiento de la recogida</p><h2>Ritmo de respuesta</h2>
+  <div class="tiles kpis" style="margin-top:14px;grid-template-columns:repeat(4,1fr)">
+   <div class="tile"><div class="v num">${ALL.length}</div><div class="k">cuestionarios recibidos</div></div>
+   <div class="tile"><div class="v num">${ks.length?ks.length:0}</div><div class="k">días con respuestas</div></div>
+   <div class="tile"><div class="v num">${nn(tasa)?pc(tasa):'—'}</div><div class="k">tasa de respuesta sobre inscritos</div></div>
+   <div class="tile noprint"><label class="k" for="ins" style="display:block;margin:0 0 6px">Número de inscritos</label><input class="t" id="ins" type="number" min="1" value="${ins||''}" placeholder="Ej.: 104" style="width:100%"></div></div>
+  <div class="panel chart" style="margin-top:14px"><h3>Respuestas por día</h3><p class="sub">Todas las respuestas recibidas, sin filtros</p>${chart}</div></section>`;
+}
+
+/* ================= Detalle por pregunta ================= */
+function detalleSesion(R,s){
+  if(s==null)return `<p class="muted">Pulsa una barra del gráfico para ver el detalle de las 5 preguntas de esa sesión.</p>`;
+  const L='ABCDE', n=R.length;
+  const rows=[0,1,2,3,4].map(k=>{const j=s*5+k, id='C'+(j+1), it=ITEMS[j]||{s:'',o:[]};
+    const cnt=[...L].map(l=>R.filter(r=>r[id]===l).length);
+    const okL=([...L].find(l=>R.some(r=>r[id]===l&&Number(r[id+'_ok'])===1)))||'';
+    const okp=n?R.filter(r=>Number(r[id+'_ok'])===1).length/n:NaN;
+    let wi=-1,wv=-1;[...'ABCD'].forEach((l,i)=>{if(l!==okL&&cnt[i]>wv){wv=cnt[i];wi=i;}});
+    const bar=[...L].map((l,i)=>{const w=n?cnt[i]/n:0;const col=l===okL?'#63002F':(l==='E'?'#d9d2d5':'#e0a872');return w>0?`<span data-tip="<b>${l})</b> ${tp(l==='E'?'No lo sé':(it.o[i]||''))}<br>${cnt[i]} (${pc(w)})${l===okL?' · correcta':''}" style="display:inline-block;height:14px;width:${w*100}%;background:${col}"></span>`:'';}).join('');
+    return `<tr><td><b>${id}</b></td><td class="l" style="max-width:420px">${esc(it.s)}</td><td class="l">${(META[j]||{}).lvl||''}</td><td class="num"><b style="color:var(--accent)">${pc(okp)}</b></td>
+      <td class="l" style="min-width:170px"><div style="display:flex;width:100%;border-radius:2px;overflow:hidden">${bar}</div><small class="muted">Correcta: ${okL||'—'}</small></td>
+      <td class="l" style="max-width:260px">${wi>=0&&wv>0?`<b>${L[wi]})</b> ${esc(it.o[wi]||'')} <span class="muted">(${pc(wv/n)})</span>`:'—'}</td></tr>`;});
+  return `<div class="tbl" style="padding:0"><table><caption><b style="color:var(--text);font-weight:700">Sesión ${s+1}.</b> ${esc(SESS[s])} · porcentaje de acierto, distribución de las respuestas (granate: correcta; naranja: incorrectas; gris: «No lo sé») y distractor más elegido.</caption>
+  <thead><tr><th>Ítem</th><th class="l">Pregunta</th><th class="l">Nivel</th><th>Acierto</th><th class="l">Respuestas</th><th class="l">Opción incorrecta más elegida</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+}
+
+/* ================= Relaciones ================= */
+function relaciones(A){
+  const R=A.R;
+  const grp=[['0-2',r=>num(r,'A15')<=2],['3-4',r=>num(r,'A15')>=3&&num(r,'A15')<=4],['5-6',r=>num(r,'A15')>=5]].map(([g,f])=>{const q=R.filter(r=>String(r.A15)!==''&&f(r));const k=q.filter(r=>num(r,'logro_global')===1).length;return{g,n:q.length,k,p:q.length?k/q.length:NaN,m:mean(q.map(r=>num(r,'C_total')))};});
+  const satm=R.map(r=>mean(['Sat_contenidos','Sat_instructores','Sat_logistica'].map(k=>num(r,k)).filter(x=>x>=1)));
+  const pairs=(xs)=>{const x=[],y=[];R.forEach((r,i)=>{const v=xs(r,i);if(nn(v)&&nn(num(r,'C_total'))){x.push(v);y.push(num(r,'C_total'));}});return[x,y];};
+  const vars=[['Sesiones sincrónicas asistidas (A15, 0-6)',r=>String(r.A15)===''?NaN:num(r,'A15')],['Lecturas leídas (A16, 0-3)',r=>ord16[r.A16]],['Foros con participación (A17, 0-3)',r=>String(r.A17)===''?NaN:num(r,'A17')],['Satisfacción media (contenidos, instructores, logística)',(r,i)=>satm[i]],['Satisfacción global (D13)',r=>num(r,'Sat_global')||NaN],['Autopercepción «ahora» (1-5)',r=>num(r,'B_ahora_media')]];
+  const cor=vars.map(([l,f])=>{const[x,y]=pairs(f);const r=pearson(x,y);return{l,n:x.length,r,p:pR(r,x.length)};});
+  A.rel={grp,cor};
+  // gráfico 1: logro según asistencia
+  let s=`<svg viewBox="0 0 ${W} 230" role="img" aria-label="Logro según asistencia">`;
+  [0,.25,.5,.75,1].forEach(v=>{const y=190-160*v;s+=`<line class="grid" x1="40" y1="${y}" x2="${W}" y2="${y}"/><text x="32" y="${y+4}" text-anchor="end">${v*100}</text>`;});
+  grp.forEach((g,i)=>{const x=90+i*140,hh=nn(g.p)?160*g.p:0;s+=`<rect x="${x}" y="${190-hh}" width="80" height="${hh}" fill="#63002F" fill-opacity="${.45+i*.27}" data-tip="<b>${g.g} sesiones</b><br>${g.k} de ${g.n} alcanzan los objetivos (${pc(g.p)})<br>Aciertos medios: ${f1(g.m)} / 30"/><text x="${x+40}" y="${190-hh-8}" text-anchor="middle" class="v">${g.n?pc(g.p):'—'}</text><text x="${x+40}" y="208" text-anchor="middle" class="v">${g.g} sesiones</text><text x="${x+40}" y="224" text-anchor="middle">n = ${g.n}</text>`;});
+  s+='</svg>';
+  // gráfico 2: satisfacción frente a aciertos
+  const w=W-40,h=180,px=v=>40+(w-10)*v/30,py=v=>14+h-h*(v-1)/4;
+  let s2=`<svg viewBox="0 0 ${W} 240" role="img" aria-label="Satisfacción frente a aciertos">`;
+  [1,2,3,4,5].forEach(v=>{s2+=`<line class="grid" x1="40" y1="${py(v)}" x2="${W}" y2="${py(v)}"/><text x="32" y="${py(v)+4}" text-anchor="end">${v}</text>`;});
+  [0,10,20,30].forEach(v=>s2+=`<text x="${px(v)}" y="${14+h+18}" text-anchor="middle">${v}</text>`);
+  R.forEach((r,i)=>{const x=num(r,'C_total'),y=satm[i];if(nn(x)&&nn(y))s2+=`<circle cx="${px(x)}" cy="${py(y)}" r="4" fill="#63002F" fill-opacity=".6" data-tip="${x} aciertos · satisfacción ${f1(y)}"/>`;});
+  const cs=cor[3];
+  s2+=`<text x="${W/2}" y="234" text-anchor="middle">Aciertos (0-30) · eje vertical: satisfacción media (1-5) · r = ${f2(cs.r)}</text></svg>`;
+  return `<section class="sec"><p class="eyebrow">Relaciones</p><h2>Qué se asocia con el logro</h2>
+  <div class="charts"><div class="panel chart"><h3>Logro según la asistencia</h3><p class="sub">Porcentaje que alcanza los objetivos del diplomado según las sesiones sincrónicas a las que asistió (A15)</p>${s}</div>
+  <div class="panel chart"><h3>Satisfacción y aciertos</h3><p class="sub">Cada punto es un asistente: aciertos frente a satisfacción media</p>${s2}</div></div>
+  <div class="panel tbl"><table><caption><b style="color:var(--text);font-weight:700">Tabla 5.</b> Correlaciones de Pearson entre la puntuación en la prueba de conocimientos (0-30) y otras variables. Son asociaciones, no relaciones causales.</caption>
+  <thead><tr><th>Variable</th><th>n</th><th>r</th><th>p</th></tr></thead><tbody>${cor.map(c=>`<tr><td>${c.l}</td><td class="num">${c.n}</td><td class="num">${f2(c.r)}</td><td class="num">${fp(c.p)}</td></tr>`).join('')}</tbody></table></div></section>`;
+}
+
+/* ================= Comparar dos grupos ================= */
+const CMPV={A2:'País',A7:'Perfil profesional',A9:'Evaluaciones previas como par',A15g:'Sesiones asistidas'};
+const grupoDe=(r,v)=>v==='A15g'?(String(r.A15)===''?'':(num(r,'A15')<=2?'0-2':num(r,'A15')<=4?'3-4':'5-6')):String(r[v]||'');
+function comparar(R){
+  const vals=[...new Set(R.map(r=>grupoDe(r,CMP.v)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  if(!vals.includes(CMP.a))CMP.a=vals[0]||'';
+  if(!vals.includes(CMP.b)||CMP.b===CMP.a)CMP.b=vals.find(v=>v!==CMP.a)||'';
+  const sel=(id,cur)=>`<select class="t" id="${id}">${vals.map(v=>`<option ${v===cur?'selected':''}>${esc(v)}</option>`).join('')}</select>`;
+  let body='<p class="muted" style="margin-top:12px">Hacen falta al menos dos grupos con respuestas para comparar.</p>';
+  if(CMP.a&&CMP.b){
+    const G1=R.filter(r=>grupoDe(r,CMP.v)===CMP.a),G2=R.filter(r=>grupoDe(r,CMP.v)===CMP.b);
+    const prop=(lab,k)=>{const k1=G1.filter(r=>num(r,k)===1).length,k2=G2.filter(r=>num(r,k)===1).length;const p1=k1/(G1.length||1),p2=k2/(G2.length||1);return[lab,pc(G1.length?p1:NaN),pc(G2.length?p2:NaN),G1.length&&G2.length?(Math.round((p1-p2)*100)+' pp'):'—','z: p '+fp(zprop(k1,G1.length,k2,G2.length)),p1,p2];};
+    const med=(lab,k)=>{const a=G1.map(r=>num(r,k)).filter(nn),b=G2.map(r=>num(r,k)).filter(nn);const t=welch(a,b);return[lab,f2k(mean(a)),f2k(mean(b)),f2k(mean(a)-mean(b)),`t(${nn(t.df)?f1(t.df):'—'}) = ${f2k(t.t)}, p ${fp(t.p)}, d = ${f2k(t.d)}`];};
+    const rows=[['n',G1.length,G2.length,'',''],prop('Alcanzan los objetivos del diplomado','logro_global'),prop('Logro del Módulo 1','logro_M1'),prop('Logro del Módulo 2','logro_M2'),prop('Logro del Módulo 3','logro_M3'),
+      med('Aciertos (0-30)','C_total'),med('Autopercepción «ahora» (1-5)','B_ahora_media'),med('Satisfacción global (1-5)','Sat_global')];
+    const bars=rows.slice(1,5);let s=`<svg viewBox="0 0 ${W} 220" role="img" aria-label="Comparación del logro">`;
+    [0,.5,1].forEach(v=>{const y=180-150*v;s+=`<line class="grid" x1="40" y1="${y}" x2="${W}" y2="${y}"/><text x="32" y="${y+4}" text-anchor="end">${v*100}</text>`;});
+    bars.forEach((b,i)=>{const x=60+i*115;[[b[5],CMP.a,1],[b[6],CMP.b,.45]].forEach(([p,g,o],j)=>{const hh=nn(p)?150*p:0;s+=`<rect x="${x+j*42}" y="${180-hh}" width="38" height="${hh}" fill="#63002F" fill-opacity="${o}" data-tip="<b>${tp(g)}</b><br>${tp(b[0])}: ${pc(p)}"/><text x="${x+j*42+19}" y="${180-hh-6}" text-anchor="middle" class="v" style="font-size:10px">${pc(p)}</text>`;});
+      s+=`<text x="${x+40}" y="198" text-anchor="middle" class="v">${['Diplomado','Módulo 1','Módulo 2','Módulo 3'][i]}</text>`;});
+    s+=`<g transform="translate(60,212)"><rect width="12" height="8" fill="#63002F"/><text x="16" y="8">${esc(CMP.a)}</text><rect x="200" width="12" height="8" fill="#63002F" fill-opacity=".45"/><text x="216" y="8">${esc(CMP.b)}</text></g></svg>`;
+    body=`<div class="panel chart" style="margin-top:14px"><h3>Logro: ${esc(CMP.a)} frente a ${esc(CMP.b)}</h3><p class="sub">Porcentaje que alcanza el criterio en cada módulo y en el diplomado</p><div style="max-width:680px">${s}</div></div>
+    <div class="panel tbl"><table><caption><b style="color:var(--text);font-weight:700">Tabla 6.</b> Comparación de grupos (${esc(CMPV[CMP.v])}). Proporciones: prueba z; medias: t de Welch y d de Cohen. Con grupos pequeños, interpretar con cautela.</caption>
+    <thead><tr><th>Indicador</th><th>${esc(CMP.a)}</th><th>${esc(CMP.b)}</th><th>Diferencia</th><th>Contraste</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td><td class="num" style="font-size:12px;white-space:nowrap">${r[4]}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  return `<div class="panel tools noprint" style="margin-top:14px"><label class="f" for="cv">Comparar por<select class="t" id="cv">${Object.entries(CMPV).map(([k,l])=>`<option value="${k}" ${k===CMP.v?'selected':''}>${l}</option>`).join('')}</select></label>
+   <label class="f" for="ca">Grupo 1${sel('ca',CMP.a)}</label><label class="f" for="cb">Grupo 2${sel('cb',CMP.b)}</label></div>
+   <p class="printonly">Comparación por ${esc(CMPV[CMP.v])}: ${esc(CMP.a)} frente a ${esc(CMP.b)}</p>${body}`;
+}
+function pintarComparar(R){const el=$('#cmp');if(!el)return;el.innerHTML=comparar(R);
+  $('#cv')&&($('#cv').onchange=e=>{CMP={v:e.target.value,a:'',b:''};pintarComparar(R);botonesPNG();});
+  $('#ca')&&($('#ca').onchange=e=>{CMP.a=e.target.value;pintarComparar(R);botonesPNG();});
+  $('#cb')&&($('#cb').onchange=e=>{CMP.b=e.target.value;pintarComparar(R);botonesPNG();});}
+
+/* ================= Borrador de resultados ================= */
+const num1=x=>f1(x), mdesc=(a)=>`M = ${f2k(mean(a))}, DE = ${f2k(sd(a))}`;
+function borrador(A){
+  const n=A.n, ins=inscritos.get(), out=[];
+  const excl=EXQ?sosp().length:0;
+  out.push(`Respondieron el cuestionario ${ALL.length} asistentes${ins?` de los ${ins} inscritos en el diplomado, lo que supone una tasa de respuesta del ${pc(ALL.length/ins)}`:''}.${excl?` Se excluyeron ${excl} cuestionarios por presentar indicios de respuesta poco atenta (tiempo inferior a 10 minutos o patrones de respuesta invariables), por lo que la muestra analizada quedó formada por ${n} asistentes.`:''}${filtroTxt().startsWith('Sin filtros')?'':` Los resultados se refieren al subgrupo: ${filtroTxt()}.`}`);
+  const m=A.mods;
+  const bajo=A.ses.map((v,i)=>[v,i]).filter(([v])=>v<CRIT/10).map(([v,i])=>`la ${i+1} (${pc(v)})`);
+  out.push(`En la prueba de conocimientos, la puntuación media fue de ${f2k(mean(A.tot))} aciertos sobre 30 (DE = ${f2k(sd(A.tot))}). El ${pc(A.glob/n)} de los asistentes (IC 95 %: ${pc(A.globCI[0])}-${pc(A.globCI[1])}) alcanzó los objetivos del diplomado, es decir, obtuvo al menos ${CRIT} aciertos de 10 en cada uno de los tres módulos. Por módulos, el porcentaje de logro fue del ${pc(m[0].p)} en el Módulo 1 (${MODS[0]}), del ${pc(m[1].p)} en el Módulo 2 (${MODS[1]}) y del ${pc(m[2].p)} en el Módulo 3 (${MODS[2]}).${bajo.length?` Las sesiones cuyo porcentaje medio de aciertos quedó por debajo del criterio fueron ${bajo.join(', ').replace(/, ([^,]*)$/,' y $1')}.`:' Todas las sesiones superaron el criterio en el porcentaje medio de aciertos.'}`);
+  out.push(`En cuanto a la competencia autopercibida, los asistentes valoraron su nivel antes del diplomado con una media de ${f2k(mean(A.bt.a))} (DE = ${f2k(sd(A.bt.a))}) y su nivel actual con una media de ${f2k(mean(A.bt.b))} (DE = ${f2k(sd(A.bt.b))}) en una escala de 1 a 5. La diferencia fue estadísticamente ${A.tT.p<.05?'significativa':'no significativa'}, t(${A.tT.df}) = ${f2k(A.tT.t)}, p ${fp(A.tT.p)}, d<sub>z</sub> = ${f2k(A.tT.dz)}. Al tratarse de una medida retrospectiva, este resultado refleja el cambio percibido por los participantes y no un cambio medido. La correlación entre la puntuación en la prueba y la competencia autopercibida actual fue de r = ${f2(A.r)}.`);
+  if(A.satComp&&A.satComp.some(s=>s.n)){const sc=A.satComp;const it=A.satItems.filter(i=>i.n&&i.id!=='D13').sort((a,b)=>a.m-b.m);
+    out.push(`La satisfacción global con el diplomado obtuvo una media de ${f2k(sc[3].m)} (DE = ${f2k(sc[3].sd)}) sobre 5. Por componentes, la media fue de ${f2k(sc[0].m)} en contenidos, de ${f2k(sc[1].m)} en instructores y de ${f2k(sc[2].m)} en logística y dinámicas de las sesiones.${it.length?` El aspecto mejor valorado fue «${it[it.length-1].l.toLowerCase()}» (M = ${f2k(it[it.length-1].m)}) y el peor valorado, «${it[0].l.toLowerCase()}» (M = ${f2k(it[0].m)}).`:''}`);}
+  if(A.rel){const c=A.rel.cor;const ses=c[0],sat=c[3];
+    out.push(`En relación con la participación, la correlación entre el número de sesiones sincrónicas a las que se asistió y la puntuación en la prueba fue de r = ${f2(ses.r)} (p ${fp(ses.p)}), y la correlación entre la satisfacción media y la puntuación fue de r = ${f2(sat.r)} (p ${fp(sat.p)}).`);}
+  out.push(`En cuanto a la fiabilidad, la prueba de conocimientos obtuvo un coeficiente KR-20 de ${f2(A.kr20)}, y la escala de competencia autopercibida, un α de Cronbach de ${f2(A.aA)} en la valoración «antes» y de ${f2(A.aB)} en la valoración «ahora».`);
+  return out;
+}
+function pintarBorrador(A){const el=$('#borr');if(!el)return;const ps=borrador(A);
+  el.innerHTML=`<div class="panel" style="padding:20px 22px;margin-top:14px"><div id="btxt" style="max-width:78ch">${ps.map(p=>`<p style="margin:0 0 12px;line-height:1.65">${p}</p>`).join('')}</div>
+  <div class="noprint" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px"><button class="btn" id="bcopy">Copiar el texto</button><span class="muted" id="bmsg" style="font-size:13px">Revisa el texto antes de usarlo: es un borrador generado con las cifras del panel y los filtros activos.</span></div></div>`;
+  $('#bcopy').onclick=()=>{const txt=ps.map(p=>p.replace(/<sub>z<\/sub>/g,'z').replace(/<[^>]+>/g,'')).join('\n\n');
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>{$('#bmsg').textContent='Texto copiado.';}).catch(()=>{const r=document.createRange();r.selectNodeContents($('#btxt'));const s=window.getSelection();s.removeAllRanges();s.addRange(r);$('#bmsg').textContent='Texto seleccionado: pulsa Ctrl+C (o Cmd+C) para copiarlo.';});};}
+
+/* ================= Descargar gráficos en PNG ================= */
+function botonesPNG(){
+  document.querySelectorAll('.panel.chart').forEach(ch=>{const svg=ch.querySelector('svg');if(!svg||ch.querySelector('.pngbtn'))return;
+    const b=document.createElement('button');b.className='pngbtn noprint';b.type='button';b.textContent='PNG';b.title='Descargar este gráfico como imagen';b.setAttribute('aria-label','Descargar el gráfico como imagen PNG');
+    b.onclick=()=>svgPNG(ch);ch.style.position='relative';ch.appendChild(b);});
+}
+function svgPNG(ch){
+  const svg=ch.querySelector('svg'),title=(ch.querySelector('h3')||{}).textContent||'grafico',sub=(ch.querySelector('.sub')||{}).textContent||'';
+  const vb=svg.viewBox.baseVal,sc=2,Wp=vb.width*sc,Hs=vb.height*sc;
+  const cl=svg.cloneNode(true);const src=svg.querySelectorAll('*'),dst=cl.querySelectorAll('*');
+  src.forEach((el,i)=>{const cs=getComputedStyle(el),d=dst[i];['fill','stroke','stroke-width','stroke-dasharray','fill-opacity','opacity','font-size','font-weight','text-anchor'].forEach(p=>{const v=cs.getPropertyValue(p);if(v)d.style.setProperty(p,v);});d.style.setProperty('font-family','Open Sans, Arial, sans-serif');d.removeAttribute('class');d.removeAttribute('data-tip');});
+  cl.setAttribute('width',Wp);cl.setAttribute('height',Hs);cl.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(cl));
+  const img=new Image();img.onload=()=>{const c=document.createElement('canvas');const x=c.getContext('2d');const CW=Wp+80;
+    x.font='22px Open Sans, Arial, sans-serif';const lines=[];let ln='';sub.split(' ').forEach(w=>{const tst=ln?ln+' '+w:w;if(x.measureText(tst).width>CW-80&&ln){lines.push(ln);ln=w;}else ln=tst;});if(ln)lines.push(ln);
+    const top2=70+lines.length*28+12;c.width=CW;c.height=top2+Hs+44;
+    x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#63002F';x.font='bold 30px Open Sans, Arial, sans-serif';x.fillText(title,40,52);
+    x.fillStyle='#6c5e65';x.font='22px Open Sans, Arial, sans-serif';lines.forEach((l,i)=>x.fillText(l,40,88+i*28));x.drawImage(img,40,top2);
+    x.fillStyle='#9a8a92';x.font='18px Open Sans, Arial, sans-serif';x.fillText('CCPE-RIACES 2026 · n = '+filtradas().length+' · '+new Date().toLocaleDateString('es-ES'),40,c.height-14);
+    c.toBlob(bl=>descargar(bl,'ccpe-riaces-2026_'+title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.png'),'image/png');};
+  img.onerror=()=>alertBox('No se ha podido generar la imagen del gráfico.');img.src=url;
+}
 
 /* ================= Inicio ================= */
 if(!API){$('#app').innerHTML='<div class="err">Falta configurar la dirección del servidor en config.js.</div>';}

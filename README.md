@@ -57,14 +57,19 @@ GitHub Pages (index.html, panel.html)  ──fetch──▶  Google Apps Script 
 
 ## Panel de evaluadores
 
-- Porcentaje de asistentes que alcanza los objetivos de cada módulo y del diplomado, con IC del 95 % (Wilson).
-- Aciertos por sesión frente al criterio, distribución de puntuaciones y logro según la experiencia previa.
-- Autopercepción retrospectiva antes/ahora (t de Student para muestras relacionadas, p exacta, d_z) y calibración entre conocimiento y autopercepción.
-- Fiabilidad (KR-20, α de Cronbach) y análisis de ítems (dificultad, discriminación y «No lo sé»).
-- Satisfacción por componente (contenidos, instructores, logística y dinámicas, global): medias, porcentaje de satisfechos, α de Cronbach y distribución de respuestas por ítem.
-- Valoración del diplomado: comentarios abiertos (lo que más gustó, lo que menos, sugerencias de mejora e ideas para próximos diplomados), con buscador.
+- **Seguimiento de la recogida:** respuestas por día y tasa de respuesta sobre el número de inscritos, que se introduce en el propio panel.
+- **Logro de objetivos:** porcentaje que alcanza el criterio por módulo y en el diplomado, con IC del 95 % (Wilson). Al pulsar una barra de «Aciertos por sesión» se ven sus preguntas, con el porcentaje de acierto, la distribución de las respuestas y el distractor más elegido.
+- **Relaciones:** logro según la asistencia y correlaciones de la puntuación con la asistencia, las lecturas, los foros, la satisfacción y la autopercepción.
+- **Autopercepción retrospectiva** antes/ahora (t de Student para muestras relacionadas, p exacta, d_z) y calibración.
+- **Satisfacción** por componente (contenidos, instructores, logística y dinámicas, global), con distribución por ítem y α de Cronbach.
+- **Valoración abierta:** comentarios con buscador, sin datos de perfil para proteger el anonimato.
+- **Comparar dos grupos** (país, perfil, experiencia o asistencia): proporciones con prueba z y medias con t de Welch y d de Cohen.
+- **Calidad de los datos:** marca los cuestionarios sospechosos (menos de 10 minutos, respuestas invariables o «No lo sé» casi siempre) y permite excluirlos del análisis.
+- **Fiabilidad y análisis de ítems** (KR-20, dificultad, discriminación) y **perfil de la muestra**.
+- **Borrador del apartado de resultados** en estilo APA, con las cifras del panel y un botón para copiarlo.
+- Información al pasar el ratón en todos los gráficos y descarga de cada gráfico en PNG.
 - Filtros por país, perfil profesional y experiencia previa, que se aplican también a las exportaciones.
-- **Exportar:** datos en CSV (separador `;`, compatible con Excel en español), un Excel con las hojas Resumen, Autopercepción, Ítems, Satisfacción, Comentarios, Datos y Diccionario, e informe en PDF desde el diálogo de impresión.
+- **Exportar:** datos en CSV (separador `;`, compatible con Excel en español), un Excel con las hojas Resumen, Autopercepción, Ítems, Satisfacción, Comentarios, Relaciones, Opciones, Calidad, Datos y Diccionario, e informe en PDF desde el diálogo de impresión.
 
 La contraseña se guarda solo durante la sesión del navegador y se borra al cerrar la pestaña o al pulsar «Cerrar sesión».
 
