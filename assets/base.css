@@ -1,0 +1,42 @@
+:root{
+  /* Marca EMC · mundo oscuro único */
+  --bg:#000000; --panel:#0c0f0e; --panel2:#131817; --line:#24302d; --text:#ffffff; --muted:#9fb1ab;
+  --accent:#00B894; --accent-soft:rgba(0,184,148,.14); --red:#B80024; --red-soft:rgba(184,0,36,.2);
+  --body:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-weight:300;font-size:15px;line-height:1.55}
+button{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--body);text-wrap:balance;margin:0}
+h1{font-weight:900;font-size:clamp(26px,4vw,40px);line-height:1.1}
+h2{font-weight:800;font-size:24px;line-height:1.2}
+h3{font-weight:700;font-size:16px}
+p{margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.muted{color:var(--muted)}
+.eyebrow{font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.num{font-variant-numeric:tabular-nums}
+header.top{position:sticky;top:0;z-index:20;background:rgba(0,0,0,.94);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:18px;min-height:64px;flex-wrap:wrap}
+header.top img{height:38px;width:auto;display:block}
+.brandtxt{display:flex;flex-direction:column;line-height:1.15;margin-right:auto}
+.brandtxt b{font-weight:800;font-size:14px}
+.brandtxt span{font-size:12px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:6px;padding:11px 18px;font-weight:600;font-size:14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:#000}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500;color:var(--muted)}
+.pill.acc{border-color:transparent;background:var(--accent-soft);color:var(--accent)}
+.pill.red{border-color:transparent;background:var(--red);color:#fff}
+.tiles{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.tile{background:var(--panel);padding:16px 18px}
+.tile .v{font-weight:900;font-size:26px;line-height:1.1}
+.tile .k{font-size:12px;color:var(--muted);margin-top:6px}
+footer.ft{border-top:1px solid var(--line);padding:22px 0;color:var(--muted);font-size:12px;margin-top:40px}
+footer.ft .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}

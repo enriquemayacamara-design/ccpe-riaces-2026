@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cuestionario final · CCPE-RIACES 2026</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+.runner{display:grid;grid-template-columns:240px 1fr;gap:28px;align-items:start;padding-top:32px}
+.steps{position:sticky;top:90px;display:flex;flex-direction:column;gap:2px}
+.steps button{display:flex;align-items:center;gap:12px;text-align:left;background:none;border:none;padding:10px 12px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:500;font-size:14px}
+.steps button:disabled{cursor:default;opacity:.5}
+.steps button .n{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none}
+.steps button.done .n{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.steps button[aria-current="step"]{background:var(--panel2);color:var(--text)}
+.steps button[aria-current="step"] .n{background:var(--accent);border-color:var(--accent);color:#000}
+.steps .side{margin-top:14px;padding:14px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.stage .panel{padding:26px}
+.progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:18px}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.navrow{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap;align-items:center}
+.consent li{margin:6px 0}
+.check{display:flex;gap:12px;align-items:center;margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:6px;cursor:pointer}
+.check input{accent-color:var(--accent);width:20px;height:20px;flex:none}
+.codegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+input.t,select.t{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px 12px;color:var(--text);font:inherit;font-weight:400}
+input.t:focus,select.t:focus{border-color:var(--accent);outline:none}
+.code{display:flex;gap:6px;margin-top:22px;align-items:center;flex-wrap:wrap}
+.code span.c{width:48px;height:58px;border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:26px;background:var(--panel2)}
+.code span.c.ok{border-color:var(--accent);color:var(--accent)}
+.code .sep{width:10px}
+.qa{display:flex;flex-direction:column;gap:18px}
+.qa .q{display:grid;grid-template-columns:52px 1fr;gap:10px 14px;padding:4px 0 16px;border-bottom:1px solid var(--line)}
+.qa .q .id{font-weight:800;color:var(--accent)}
+.qa .q.miss{box-shadow:inset 3px 0 0 var(--red);padding-left:10px}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.lk-head{display:grid;grid-template-columns:1fr repeat(5,46px);gap:6px;font-size:11px;color:var(--muted);text-align:center;align-items:end;padding:8px 0;position:sticky;top:64px;background:var(--panel);z-index:2}
+.lk-head span:first-child{text-align:left}
+.lk-mod{margin-top:16px;font-weight:700;font-size:13px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.lk{display:grid;grid-template-columns:1fr repeat(5,46px);gap:6px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.lk.miss{box-shadow:inset 3px 0 0 var(--red);padding-left:10px}
+.lk p b{color:var(--accent);font-weight:800;margin-right:8px}
+.lk button{height:38px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer;font-weight:700}
+.lk button:hover{border-color:var(--accent)}
+.lk button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#000}
+.qnav{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.qnav .grp{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.qnav .grp small{font-size:11px;color:var(--muted);margin-right:4px;font-weight:600}
+.qdot{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:transparent;font-size:9px;font-weight:700;cursor:pointer;color:var(--muted);padding:0}
+.qdot.ans{background:rgba(0,184,148,.45);color:#fff;border-color:transparent}
+.qdot.cur{box-shadow:0 0 0 2px #fff}
+.qdot:disabled{cursor:default;opacity:.4}
+.stem{font-size:19px;font-weight:400;line-height:1.5;max-width:70ch}
+.stem b{color:var(--accent);font-weight:900;margin-right:10px}
+.mc{display:flex;flex-direction:column;gap:8px;margin-top:20px;max-width:780px}
+.mc button{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:12px 14px;cursor:pointer;font-size:15px;font-weight:300;line-height:1.45}
+.mc button .L{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.mc button:hover{border-color:var(--accent)}
+.mc button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.mc button[aria-pressed="true"] .L{background:var(--accent);color:#000;border-color:var(--accent)}
+.mc button.dk{color:var(--muted);font-style:italic}
+.kbd{font-size:12px;color:var(--muted)}
+.kbd kbd{font-family:inherit;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:11px}
+.err{margin-top:16px;padding:12px 16px;border-radius:8px;border-left:4px solid var(--red);background:var(--red-soft)}
+.sum{display:grid;grid-template-columns:repeat(4,1fr)}
+.big{font-weight:900;font-size:44px;letter-spacing:.12em;color:var(--accent)}
+.spinner{width:18px;height:18px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+textarea.t{width:100%;min-height:120px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--text);font:12px/1.4 monospace;padding:10px}
+@media (max-width:900px){.runner{grid-template-columns:1fr}.steps{position:static;flex-direction:row;flex-wrap:wrap}.sum{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.codegrid{grid-template-columns:1fr}.lk,.lk-head{grid-template-columns:1fr repeat(5,34px)}.qa .q{grid-template-columns:1fr}.stage .panel{padding:18px}}
+
+/* v2 · escala retrospectiva antes/ahora */
+.rt{display:grid;grid-template-columns:1fr auto;gap:10px 18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.rt.miss{box-shadow:inset 3px 0 0 var(--red);padding-left:10px}
+.rt p b{color:var(--accent);font-weight:800;margin-right:8px}
+.rt .pair{display:flex;flex-direction:column;gap:6px}
+.rt .row{display:grid;grid-template-columns:150px repeat(5,40px);gap:5px;align-items:center}
+.rt .row span{font-size:12px;color:var(--muted);text-align:right;padding-right:6px}
+.rt .row.now span{color:var(--text);font-weight:600}
+.rt button{height:34px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer;font-weight:700;font-size:13px}
+.rt button:hover{border-color:var(--accent)}
+.rt .row.before button[aria-pressed="true"]{background:#fff;border-color:#fff;color:#000}
+.rt .row.now button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#000}
+.scale{display:grid;grid-template-columns:150px repeat(5,40px);gap:5px;font-size:11px;color:var(--muted);text-align:center;justify-content:end;padding:8px 0;position:sticky;top:64px;background:var(--panel);z-index:2;border-bottom:1px solid var(--line)}
+@media (max-width:760px){.rt{grid-template-columns:1fr}.rt .row,.scale{grid-template-columns:110px repeat(5,1fr)}.scale{justify-content:stretch}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <img src="assets/logo.png" alt="EMC · La Clase de Kike">
+  <div class="brandtxt"><b>CCPE-RIACES 2026</b><span>Cuestionario final · Diplomado de Pares Académicos Evaluadores</span></div>
+  <span class="pill acc">Anónimo</span>
+</div></header>
+
+<main class="wrap runner">
+  <aside class="steps" id="steps" aria-label="Pasos del cuestionario"></aside>
+  <div class="stage" id="stage" aria-live="polite"></div>
+</main>
+<footer class="ft"><div class="wrap"><span>Diplomado Internacional en Formación y Actualización de Pares Académicos Evaluadores · RIACES 2026</span><span>Contacto del estudio: [correo]</span></div></footer>
+
+<script src="config.js"></script>
+<script src="assets/items.js"></script>
+<script>
+const API = (window.CCPE_CONFIG||{}).API_URL || '';
+const ITEMS = window.CCPE_ITEMS;
+const BITEMS = window.CCPE_BITEMS;
+const MODS = ['Perspectiva iberoamericana del aseguramiento de la calidad','Actuación estratégica del par en la evaluación externa','Innovación y juicio evaluativo'];
+const COUNTRIES = ['Argentina','Bolivia','Brasil','Chile','Colombia','Costa Rica','Cuba','Ecuador','El Salvador','España','Guatemala','Honduras','México','Nicaragua','Panamá','Paraguay','Perú','Portugal','Puerto Rico','República Dominicana','Uruguay','Venezuela','Otro'];
+const AQ = [
+ {id:'A2',q:'País en el que desarrolla principalmente su actividad',sel:COUNTRIES},
+ {id:'A3',q:'Género',o:['Mujer','Hombre','Otro','Prefiero no responder']},
+ {id:'A4',q:'Edad',o:['< 35','35-44','45-54','55-64','65 o más']},
+ {id:'A5',q:'Máximo nivel académico alcanzado',o:['Grado o licenciatura','Especialización','Máster o maestría','Doctorado']},
+ {id:'A6',q:'Área de conocimiento principal',sel:['Educación','Artes y humanidades','Ciencias sociales, periodismo e información','Administración de empresas y derecho','Ciencias naturales, matemáticas y estadística','Tecnologías de la información y la comunicación','Ingeniería, industria y construcción','Agricultura, silvicultura, pesca y veterinaria','Salud y bienestar','Servicios']},
+ {id:'A7',q:'Perfil profesional principal',o:['Par evaluador activo','Personal técnico de agencia','Responsable o gestor de calidad en una IES','Directivo de IES','Docente o investigador','Otro']},
+ {id:'A8',q:'Años de experiencia en aseguramiento de la calidad',o:['Menos de 2','2-5','6-10','Más de 10']},
+ {id:'A9',q:'Número de evaluaciones externas en las que ha participado como par',o:['0','1-3','4-10','Más de 10']},
+ {id:'A10',q:'Modalidades de evaluación externa en las que ha participado',o:['Presencial','Virtual','Híbrida','Ninguna'],multi:1},
+ {id:'A11',q:'¿Ha evaluado alguna vez con un marco distinto al de su propio país?',o:['Sí','No']},
+ {id:'A12',q:'Formación previa como par evaluador (antes de este diplomado)',o:['Ninguna','De una agencia nacional','Edición 2025 de este diplomado','Otra formación internacional'],multi:1},
+ {id:'A13',q:'Frecuencia con la que usa IA generativa en su trabajo profesional',o:['Nunca','Rara vez','A veces','A menudo','Siempre']},
+ {id:'A14',q:'Familiaridad con las microcredenciales antes del diplomado',o:['Ninguna','Baja','Media','Alta']},
+ {id:'A15',q:'Número de sesiones sincrónicas del diplomado a las que asistió',o:['0','1','2','3','4','5','6']},
+ {id:'A16',q:'Proporción de lecturas base que leyó',o:['Ninguna','Menos de la mitad','La mitad o más','Todas']},
+ {id:'A17',q:'Número de foros del diplomado en los que participó',o:['0','1','2','3']}];
+const STEPS = ['Presentación','Perfil','Autopercepción','Conocimientos','Revisión y envío'];
+const NS = STEPS.length;
+const L = 'ABCDE';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DRAFT = 'ccpe-riaces-2026-postest';
+
+/* ---- Estado y borrador local ---- */
+function nuevoOrden(){ // aleatoriza el orden de las preguntas dentro de cada módulo
+  const o=[];for(let m=0;m<3;m++){const g=[...Array(10)].map((_,i)=>m*10+i);for(let i=g.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[g[i],g[j]]=[g[j],g[i]];}o.push(...g);}return o;}
+const nuevo = () => ({step:0,max:0,consent:false,A:{},B:{},C:{},pos:0,orden:nuevoOrden(),t0:Date.now(),enviado:null});
+let S = nuevo();
+let showMiss = false, sending = false, sendErr = '';
+function guardarBorrador(){try{localStorage.setItem(DRAFT,JSON.stringify(S));}catch(e){}}
+function leerBorrador(){try{const d=JSON.parse(localStorage.getItem(DRAFT)||'null');return d&&d.orden&&d.orden.length===30?d:null;}catch(e){return null;}}
+function borrarBorrador(){try{localStorage.removeItem(DRAFT);}catch(e){}}
+
+const missA=()=>AQ.filter(q=>{const v=S.A[q.id];return v==null||v===''||(Array.isArray(v)&&!v.length);}).map(q=>q.id);
+const missB=()=>BITEMS.filter(b=>!(S.B[b.id]&&S.B[b.id].antes&&S.B[b.id].ahora)).map(b=>b.id);
+const nC=()=>Object.keys(S.C).length;
+function done(i){return [S.consent,!missA().length,!missB().length,nC()===30,!!S.enviado][i];}
+function progress(){const p=[S.consent?1:0,1-missA().length/AQ.length,1-missB().length/18,nC()/30];return Math.round(p.reduce((a,b)=>a+b,0)/4*100);}
+function goStep(i){S.step=i;S.max=Math.max(S.max,i);showMiss=false;guardarBorrador();render();window.scrollTo({top:0});}
+
+/* ---- Pasos laterales ---- */
+function renderSteps(){
+  $('#steps').innerHTML=STEPS.map((t,i)=>`<button class="${done(i)?'done':''}" ${i===S.step?'aria-current="step"':''} data-s="${i}" ${i>S.max||S.enviado?'disabled':''}><span class="n">${done(i)?'✓':i+1}</span>${t}</button>`).join('')+
+   `<div class="side">Sus respuestas se guardan en este navegador mientras completa el cuestionario. Puede cerrar la página y continuar más tarde.</div>`;
+  document.querySelectorAll('#steps [data-s]').forEach(b=>b.onclick=()=>goStep(+b.dataset.s));
+}
+function nav(nextLabel,nextOk=true){return `<div class="navrow"><button class="btn ghost" id="prev" ${S.step===0?'disabled':''}>Atrás</button><button class="btn" id="next" ${nextOk?'':'disabled'}>${nextLabel||'Siguiente'}</button></div>`;}
+function bindNav(onNext){const p=$('#prev'),n=$('#next');if(p)p.onclick=()=>goStep(S.step-1);if(n)n.onclick=onNext||(()=>goStep(S.step+1));}
+function keepScroll(fn){const y=window.scrollY;fn();window.scrollTo(0,y);}
+const head=(t,sub)=>`<p class="eyebrow">Paso ${S.step+1} de ${NS}${sub?' · '+sub:''}</p><h2 style="margin:8px 0 12px">${t}</h2>`;
+
+/* ---- Render ---- */
+function render(){
+  renderSteps(); const st=$('#stage');
+  if(S.enviado){renderGracias(st);return;}
+  let h=`<div class="progress" role="progressbar" aria-valuenow="${progress()}" aria-valuemin="0" aria-valuemax="100"><i style="width:${progress()}%"></i></div>`;
+
+  if(S.step===0){
+    h+=`<div class="panel">${head('Cuestionario final del diplomado')}
+    <p style="max-width:66ch">Estimado/a participante: este cuestionario forma parte de un estudio sobre el logro de los objetivos de aprendizaje del Diplomado Internacional en Formación y Actualización de Pares Académicos Evaluadores (RIACES 2026). Se responde una sola vez, al terminar el diplomado, y le llevará entre 25 y 30 minutos.</p>
+    <ul class="consent muted" style="max-width:66ch;margin-top:14px;padding-left:18px">
+      <li>Su participación es voluntaria y no influye en su calificación ni en la obtención de la microcredencial.</li>
+      <li>Puede abandonar el cuestionario en cualquier momento sin dar explicaciones.</li>
+      <li>El cuestionario es anónimo: no se solicita su nombre, su correo electrónico ni ningún dato que le identifique. Los resultados se publicarán solo de forma agregada.</li>
+      <li>Los datos se usarán exclusivamente con fines de investigación y mejora del diplomado. Responsable del tratamiento: [entidad]. Contacto: [correo]. Aprobación del comité de ética: [código].</li></ul>
+    <label class="check" for="consent"><input type="checkbox" id="consent" ${S.consent?'checked':''}><span><b style="font-weight:600">He leído esta información y acepto participar.</b> <span class="muted">Obligatorio para continuar.</span></span></label>
+    ${nav('Aceptar y continuar',S.consent)}</div>`;
+    st.innerHTML=h;$('#consent').onchange=e=>{S.consent=e.target.checked;guardarBorrador();render();};bindNav();return;}
+
+  if(S.step===1){const miss=showMiss?missA():[];
+    h+=`<div class="panel">${head('Datos de perfil','Bloque A')}<p class="muted">Todas las preguntas son obligatorias. En las marcadas como «varias respuestas» puede elegir más de una opción.</p><div class="qa" style="margin-top:18px">`+
+    AQ.map(q=>`<div class="q ${miss.includes(q.id)?'miss':''}" id="q-${q.id}"><span class="id">${q.id}</span><div><p style="margin-bottom:8px;font-weight:500">${q.q}${q.multi?' <span class="muted" style="font-weight:300">(varias respuestas)</span>':''}</p>${q.sel?`<select class="t" data-a="${q.id}" aria-label="${esc(q.q)}"><option value="">Seleccione…</option>${q.sel.map(o=>`<option ${S.A[q.id]===o?'selected':''}>${o}</option>`).join('')}</select>`:`<div class="opts">${q.o.map(o=>{const on=q.multi?(S.A[q.id]||[]).includes(o):S.A[q.id]===o;return `<button class="opt" data-a="${q.id}" data-v="${esc(o)}" aria-pressed="${on}">${o}</button>`;}).join('')}</div>`}</div></div>`).join('')+
+    `</div>${miss.length?`<div class="err">Faltan por responder: ${miss.join(', ')}.</div>`:''}${nav()}</div>`;
+    st.innerHTML=h;
+    st.querySelectorAll('select[data-a]').forEach(s=>s.onchange=()=>{if(s.value)S.A[s.dataset.a]=s.value;else delete S.A[s.dataset.a];guardarBorrador();keepScroll(render);});
+    st.querySelectorAll('button.opt').forEach(b=>b.onclick=()=>{const q=AQ.find(x=>x.id===b.dataset.a),v=b.dataset.v;
+      if(q.multi){let arr=S.A[q.id]||[];if(arr.includes(v))arr=arr.filter(x=>x!==v);else{arr=(v==='Ninguna')?['Ninguna']:[...arr.filter(x=>x!=='Ninguna'),v];}S.A[q.id]=arr;if(!arr.length)delete S.A[q.id];}else S.A[q.id]=v;
+      guardarBorrador();keepScroll(render);});
+    bindNav(()=>{if(missA().length){showMiss=true;render();const f=document.getElementById('q-'+missA()[0]);if(f)f.scrollIntoView({block:'center'});}else goStep(2);});
+    return;}
+
+  if(S.step===2){const miss=showMiss?missB():[];
+    const btns=(id,k)=>[1,2,3,4,5].map(v=>`<button data-b="${id}" data-k="${k}" data-v="${v}" aria-pressed="${(S.B[id]||{})[k]===v}" aria-label="${id} ${k==='antes'?'antes del diplomado':'ahora'}: ${v}">${v}</button>`).join('');
+    h+=`<div class="panel">${head('¿En qué medida se siente capaz…?','Bloque B')}
+    <p style="max-width:68ch">Para cada tarea, valore <b style="font-weight:600">cómo se sentía antes de empezar el diplomado</b> y <b style="font-weight:600;color:var(--accent)">cómo se siente ahora</b>. Intente recordar honestamente su punto de partida.</p>
+    <p class="muted" style="margin-top:6px">1 = Nada capaz · 2 = Poco capaz · 3 = Moderadamente capaz · 4 = Bastante capaz · 5 = Totalmente capaz. <span class="num">${18-missB().length}/18</span> completos.</p>
+    <div style="margin-top:12px"><div class="scale"><span></span><span>1<br>Nada</span><span>2</span><span>3</span><span>4</span><span>5<br>Total</span></div>`+
+    [1,2,3].map(m=>`<div class="lk-mod">Módulo ${m}</div>`+BITEMS.filter(x=>Math.ceil(x.ses/2)===m).map(x=>`<div class="rt ${miss.includes(x.id)?'miss':''}" id="q-${x.id}"><p><b>${x.id}</b>${esc(x.t)}</p><div class="pair"><div class="row before"><span>Antes del diplomado</span>${btns(x.id,'antes')}</div><div class="row now"><span>Ahora</span>${btns(x.id,'ahora')}</div></div></div>`).join('')).join('')+
+    `</div>${miss.length?`<div class="err">Faltan por responder (antes y ahora): ${miss.join(', ')}.</div>`:''}${nav()}</div>`;
+    st.innerHTML=h;
+    st.querySelectorAll('.rt button').forEach(b=>b.onclick=()=>{const id=b.dataset.b;S.B[id]=Object.assign({},S.B[id],{[b.dataset.k]:+b.dataset.v});guardarBorrador();keepScroll(render);});
+    bindNav(()=>{if(missB().length){showMiss=true;render();const f=document.getElementById('q-'+missB()[0]);if(f)f.scrollIntoView({block:'center'});}else{S.pos=0;goStep(3);}});
+    return;}
+
+  if(S.step===3){renderC(st,h);return;}
+  renderEnvio(st,h);
+}
+
+function renderC(st,h){
+  const pos=S.pos, idx=S.orden[pos], it=ITEMS[idx], id='C'+(idx+1), a=S.C[id], m=Math.floor(pos/10);
+  const firstOpen=S.orden.findIndex(i=>!S.C['C'+(i+1)]);
+  const reach=firstOpen===-1?29:firstOpen;
+  const dot=p=>{const ans=!!S.C['C'+(S.orden[p]+1)];return `<button class="qdot ${ans?'ans':''} ${p===pos?'cur':''}" data-p="${p}" ${p>reach?'disabled':''} aria-label="Pregunta ${p+1}${ans?', respondida':''}">${p+1}</button>`;};
+  h+=`<div class="panel"><p class="eyebrow">Paso 4 de ${NS} · Bloque C · <span class="num">${nC()}/30</span> respondidas</p>
+  <div class="qnav" style="margin-top:12px">${[0,1,2].map(g=>`<div class="grp"><small>M${g+1}</small>${[...Array(10)].map((_,j)=>dot(g*10+j)).join('')}</div>`).join('')}</div>
+  <p class="muted" style="font-size:13px;margin-bottom:10px">Módulo ${m+1} · ${MODS[m]}</p>
+  <p class="stem"><b>${pos+1}.</b>${esc(it.s)}</p>
+  <div class="mc" role="radiogroup" aria-label="Opciones de respuesta">${[...it.o,'No lo sé.'].map((o,j)=>`<button class="${j===4?'dk':''}" role="radio" data-o="${L[j]}" aria-checked="${a===L[j]}" aria-pressed="${a===L[j]}"><span class="L">${L[j]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+  <div class="navrow"><button class="btn ghost" id="qp">${pos===0?'Volver al bloque B':'Pregunta anterior'}</button>
+  <span class="kbd">Teclas <kbd>A</kbd>-<kbd>E</kbd> para responder · <kbd>←</kbd> <kbd>→</kbd> para moverse</span>
+  <button class="btn" id="qn" ${a?'':'disabled'}>${pos===29?'Revisar y enviar':'Siguiente pregunta'}</button></div>
+  ${a?'':'<p class="hint" style="text-align:right">Elija una opción para continuar. Si no conoce la respuesta, marque «No lo sé».</p>'}</div>`;
+  st.innerHTML=h;
+  st.querySelectorAll('.mc button').forEach(b=>b.onclick=()=>responder(b.dataset.o));
+  st.querySelectorAll('.qdot').forEach(b=>b.onclick=()=>{S.pos=+b.dataset.p;guardarBorrador();render();});
+  $('#qp').onclick=()=>{if(S.pos===0)goStep(2);else{S.pos--;guardarBorrador();render();}};
+  $('#qn').onclick=avanzarC;
+}
+function responder(o){S.C['C'+(S.orden[S.pos]+1)]=o;guardarBorrador();render();}
+function avanzarC(){if(!S.C['C'+(S.orden[S.pos]+1)])return;if(S.pos<29){S.pos++;guardarBorrador();render();}else goStep(4);}
+document.addEventListener('keydown',e=>{
+  if(S.step!==3||S.enviado||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
+  const k=e.key.toUpperCase();
+  if(k.length===1&&'ABCDE'.includes(k)){responder(k);}
+  else if(e.key==='ArrowRight'){avanzarC();}
+  else if(e.key==='ArrowLeft'&&S.pos>0){S.pos--;render();}
+});
+
+function payload(){return {consentimiento:S.consent,A:S.A,B:S.B,C:S.C,orden:S.orden.map(i=>'C'+(i+1)).join(','),duracion:(Date.now()-S.t0)/1000};}
+function renderEnvio(st,h){
+  const pend=[!S.consent&&'el consentimiento',missA().length&&('perfil: '+missA().join(', ')),missB().length&&('bloque B: '+missB().join(', ')),nC()<30&&((30-nC())+' preguntas del bloque C')].filter(Boolean);
+  const nk=Object.values(S.C).filter(v=>v==='E').length;
+  h+=`<div class="panel">${head('Revisión y envío')}
+  <div class="tiles sum" style="margin-top:6px;grid-template-columns:repeat(3,1fr)">
+    <div class="tile"><div class="v num">${AQ.length-missA().length}/${AQ.length}</div><div class="k">datos de perfil</div></div>
+    <div class="tile"><div class="v num">${18-missB().length}/18</div><div class="k">ítems de autopercepción (antes y ahora)</div></div>
+    <div class="tile"><div class="v num">${nC()}/30</div><div class="k">preguntas de conocimientos (${nk} «No lo sé»)</div></div></div>
+  ${pend.length?`<div class="err">Antes de enviar falta completar: ${pend.join('; ')}.</div>`:`<p style="margin-top:18px;max-width:66ch">Puede volver atrás para revisar cualquier respuesta. Cuando pulse «Enviar respuestas», ya no podrá modificarlas.</p>`}
+  ${sendErr?`<div class="err"><b style="font-weight:700">No se han podido enviar las respuestas.</b> ${esc(sendErr)} Compruebe su conexión y vuelva a intentarlo; sus respuestas siguen guardadas en este navegador.</div>`:''}
+  <div class="navrow"><button class="btn ghost" id="prev">Atrás</button><button class="btn" id="send" ${pend.length||sending?'disabled':''}>${sending?'<span class="spinner"></span> Enviando…':'Enviar respuestas'}</button></div></div>`;
+  st.innerHTML=h;
+  $('#prev').onclick=()=>{S.pos=29;goStep(3);};
+  $('#send').onclick=enviar;
+}
+function enviar(){
+  if(sending)return; sending=true; sendErr=''; render();
+  const ok=r=>{sending=false;S.enviado={id:r&&r.id,fecha:new Date().toISOString()};borrarBorrador();try{localStorage.setItem(DRAFT+'-enviado',JSON.stringify(S.enviado));}catch(e){}render();window.scrollTo({top:0});};
+  const ko=e=>{sending=false;sendErr=(e&&e.message)?e.message:String(e||'');render();};
+  if(!API){ko(new Error('La página no está conectada al servidor del estudio.'));return;}
+  fetch(API,{method:'POST',body:JSON.stringify(Object.assign({accion:'guardar'},payload()))})
+    .then(r=>r.json()).then(d=>{if(d&&d.ok)ok(d);else ko(new Error((d&&d.error)||'Respuesta no válida del servidor.'));})
+    .catch(()=>ko(new Error('Sin conexión con el servidor.')));
+}
+function renderGracias(st){
+  st.innerHTML=`<div class="panel" style="padding:34px"><p class="eyebrow">Respuestas enviadas</p><h1 style="margin:10px 0 14px">Gracias por participar</h1>
+  <p style="max-width:62ch">Sus respuestas se han registrado de forma anónima. Nos ayudarán a comprobar si el diplomado cumple sus objetivos y a mejorar las próximas ediciones.</p>
+  <p class="muted" style="max-width:62ch;margin-top:12px">Ya puede cerrar esta página.</p></div>`;
+}
+function renderCerrado(){
+  $('#steps').innerHTML='';
+  $('#stage').innerHTML=`<div class="panel" style="padding:34px"><p class="eyebrow">Cuestionario no disponible</p><h2 style="margin:10px 0 12px">El cuestionario no está abierto en este momento</h2><p class="muted" style="max-width:62ch">Se abrirá al terminar la Sesión 6 del diplomado. Recibirá el enlace por los canales del curso.</p></div>`;
+}
+
+/* ---- Inicio ---- */
+function iniciar(){
+  let prev=null;try{prev=JSON.parse(localStorage.getItem(DRAFT+'-enviado')||'null');}catch(e){}
+  const d=leerBorrador();
+  if(prev&&!d){S.enviado=prev;render();
+    $('#stage').insertAdjacentHTML('beforeend','<div class="navrow"><span class="muted" style="font-size:13px">¿Otra persona va a responder desde este mismo dispositivo?</span><button class="btn ghost" id="otra">Empezar un cuestionario nuevo</button></div>');
+    $('#otra').onclick=()=>{try{localStorage.removeItem(DRAFT+'-enviado');}catch(e){}S=nuevo();render();window.scrollTo({top:0});};}
+  else{if(d&&!d.enviado){S=Object.assign(nuevo(),d);}render();}
+}
+$('#stage').innerHTML='<div class="panel" style="padding:26px"><p class="muted">Cargando el cuestionario…</p></div>';
+if(!API){$('#stage').innerHTML='<div class="err">Falta configurar la dirección del servidor en config.js.</div>';}
+else fetch(API+'?accion=estado').then(r=>r.json()).then(e=>{if(e&&e.abierto===false)renderCerrado();else iniciar();})
+  .catch(()=>iniciar()); // sin conexión: se deja responder; el envío avisará si falla
+</script>
+</body>
+</html>
