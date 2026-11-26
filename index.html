@@ -207,7 +207,7 @@ function render(){
       <li>Su participación es voluntaria y no influye en su calificación ni en la obtención de la microcredencial.</li>
       <li>Puede abandonar el cuestionario en cualquier momento sin dar explicaciones.</li>
       <li>El cuestionario es anónimo: no se solicita su nombre, su correo electrónico ni ningún dato que le identifique. Los resultados se publicarán solo de forma agregada.</li>
-      <li>Los datos se usarán exclusivamente con fines de investigación y mejora del diplomado. Responsable del tratamiento: [entidad]. Contacto: <a href="mailto:secretariaejecutiva@riaces.org" style="color:inherit">secretariaejecutiva@riaces.org</a>. Aprobación del comité de ética: [código].</li></ul>
+      <li>Los datos se usarán exclusivamente con fines de investigación y mejora del diplomado. Responsable del tratamiento: RIACES. Contacto: <a href="mailto:secretariaejecutiva@riaces.org" style="color:inherit">secretariaejecutiva@riaces.org</a>.</li></ul>
     <label class="check" for="consent"><input type="checkbox" id="consent" ${S.consent?'checked':''}><span><b style="font-weight:600">He leído esta información y acepto participar.</b> <span class="muted">Obligatorio para continuar.</span></span></label>
     ${nav('Aceptar y continuar',S.consent)}</div>`;
     st.innerHTML=h;$('#consent').onchange=e=>{S.consent=e.target.checked;guardarBorrador();render();};bindNav();return;}
